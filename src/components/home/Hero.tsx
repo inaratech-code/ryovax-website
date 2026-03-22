@@ -79,7 +79,7 @@ export default function Hero() {
                 </div>
 
                 <motion.div
-                    className="relative h-[600px] w-full hidden lg:block"
+                    className="relative h-[260px] sm:h-[340px] md:h-[460px] lg:h-[600px] w-full min-h-0"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
