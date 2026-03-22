@@ -1,49 +1,105 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Menu, Globe2, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import RyovaxLogo from "@/components/brand/RyovaxLogo";
+import { useState, useEffect, useRef } from "react";
+
+function useBodyScrollLock(locked: boolean) {
+    useEffect(() => {
+        if (locked) {
+            const prev = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = prev;
+            };
+        }
+    }, [locked]);
+}
 
 const navLinks = [
-    { name: "Services", href: "#services" },
-    { name: "Industries", href: "#industries" },
-    { name: "How It Works", href: "#how-it-works" },
-    { name: "Company", href: "#company" },
+    { name: "Services", href: "/services" },
+    { name: "Expert advice", href: "/advisory" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [headerHidden, setHeaderHidden] = useState(false);
+    const lastScrollY = useRef(0);
+
+    useBodyScrollLock(mobileMenuOpen);
+
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            setHeaderHidden(false);
+        }
+    }, [mobileMenuOpen]);
+
+    useEffect(() => {
+        lastScrollY.current = typeof window !== "undefined" ? window.scrollY : 0;
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
+            const y = window.scrollY;
+            setIsScrolled(y > 20);
+
+            if (mobileMenuOpen) {
+                setHeaderHidden(false);
+                lastScrollY.current = y;
+                return;
+            }
+
+            const prev = lastScrollY.current;
+            const delta = y - prev;
+
+            if (y < 56) {
+                setHeaderHidden(false);
+            } else if (delta > 6 && y > 96) {
+                setHeaderHidden(true);
+            } else if (delta < -6) {
+                setHeaderHidden(false);
+            }
+
+            lastScrollY.current = y;
         };
-        window.addEventListener("scroll", handleScroll);
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [mobileMenuOpen]);
 
     return (
         <motion.header
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-4" : "bg-transparent py-6"}`}
+            initial={{ y: -16, opacity: 0.96 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed top-0 left-0 right-0 z-50"
         >
-            <div className="container mx-auto px-6 flex items-center justify-between">
+            <div
+                className={`transition-[transform,background-color,border-color,box-shadow,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+                    headerHidden && !mobileMenuOpen ? "-translate-y-full" : "translate-y-0"
+                } ${isScrolled ? "bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-2 sm:py-2.5" : "bg-transparent py-3 sm:py-4"}`}
+            >
+                <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 min-w-0">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2 group">
-                    <div className="h-10 w-10 bg-blue-700 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:bg-blue-800 transition-colors">
-                        <Globe2 size={24} />
-                    </div>
-                    <span className="text-2xl font-bold tracking-tight text-slate-900">
-                        Ryovax<span className="text-saffron-500">.</span>
-                    </span>
+                <Link
+                    href="/"
+                    className="flex items-center group shrink-0 min-w-0 max-w-[min(100%,240px)] sm:max-w-none border-0 outline-none ring-0 focus:outline-none focus-visible:outline-none"
+                    aria-label="Ryovax home"
+                >
+                    <RyovaxLogo
+                        priority
+                        heightClass="h-12 sm:h-16 md:h-20 lg:h-24 xl:h-28"
+                        className="group-hover:opacity-90 transition-opacity max-w-full object-contain object-left"
+                    />
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden lg:flex items-center gap-8">
+                <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
@@ -61,43 +117,49 @@ export default function Navbar() {
                         Sign In
                     </Link>
                     <Link href="/auth/register" className="text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 px-5 py-2.5 rounded-lg shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5">
-                        Post RFQ
+                        Request quotes
                     </Link>
                 </div>
 
                 {/* Mobile Menu Toggle */}
                 <button
-                    className="lg:hidden text-slate-900 p-2"
+                    type="button"
+                    className="lg:hidden shrink-0 text-slate-900 p-2 rounded-lg hover:bg-slate-100 transition-colors"
                     onClick={() => setMobileMenuOpen(true)}
+                    aria-label="Open menu"
+                    aria-expanded={mobileMenuOpen}
                 >
                     <Menu size={24} />
                 </button>
+                </div>
             </div>
 
             {/* Mobile Menu Fullscreen Overlay */}
             {mobileMenuOpen && (
-                <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center space-y-8">
+                <div className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center space-y-6 sm:space-y-8 px-6 pt-[max(2rem,env(safe-area-inset-top))] pb-8 overflow-y-auto">
                     <button
-                        className="absolute top-6 right-6 text-slate-900 p-2 bg-slate-100 rounded-full"
+                        type="button"
+                        className="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-900 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
                         onClick={() => setMobileMenuOpen(false)}
+                        aria-label="Close menu"
                     >
                         <X size={24} />
                     </button>
 
-                    <nav className="flex flex-col items-center gap-6 text-xl font-medium">
+                    <nav className="flex flex-col items-center gap-5 sm:gap-6 text-lg sm:text-xl font-medium text-center max-w-sm w-full">
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-slate-800 hover:text-blue-700"
+                                className="text-slate-800 hover:text-blue-700 py-1"
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
                     </nav>
 
-                    <div className="flex flex-col items-center gap-4 mt-8 w-full px-12">
+                    <div className="flex flex-col items-center gap-3 sm:gap-4 mt-4 sm:mt-8 w-full max-w-sm px-4">
                         <Link
                             href="/auth/login"
                             className="w-full text-center py-4 border-2 border-slate-200 rounded-xl font-semibold text-slate-800"
@@ -110,7 +172,7 @@ export default function Navbar() {
                             className="w-full text-center py-4 bg-blue-700 rounded-xl font-semibold text-white shadow-lg"
                             onClick={() => setMobileMenuOpen(false)}
                         >
-                            Post RFQ
+                            Request quotes
                         </Link>
                     </div>
                 </div>

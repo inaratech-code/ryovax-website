@@ -1,9 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-saffron-500: #f97316;
-  --color-saffron-400: #fb923c;
-  --color-saffron-600: #ea580c;
+  /* Ryovax logo: deep navy + golden yellow (public/Ryovax logo.png) */
+  --color-blue-50: #f0f4f9;
+  --color-blue-100: #dce7f2;
+  --color-blue-200: #b8cce3;
+  --color-blue-300: #8aa8cf;
+  --color-blue-400: #5c7fb0;
+  --color-blue-500: #3d6494;
+  --color-blue-600: #2d4f7a;
+  --color-blue-700: #1b365d;
+  --color-blue-800: #16324f;
+  --color-blue-900: #122843;
+  --color-blue-950: #0c1a2c;
+
+  --color-saffron-50: #fffbeb;
+  --color-saffron-100: #fef3c7;
+  --color-saffron-200: #fde68a;
+  --color-saffron-300: #fcd34d;
+  --color-saffron-400: #facc15;
+  --color-saffron-500: #fcd116;
+  --color-saffron-600: #e6b800;
+  --color-saffron-700: #c49a00;
+  --color-saffron-800: #a37d00;
+  --color-saffron-900: #7a5e00;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -14,9 +34,9 @@
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
-    --primary: #1e3a8a;
+    --primary: #1b365d;
     --primary-foreground: #ffffff;
-    --accent: #f97316;
+    --accent: #fcd116;
     --accent-foreground: #ffffff;
     --border: #e2e8f0;
   }
