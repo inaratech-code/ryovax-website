@@ -41,21 +41,21 @@ export default function Hero() {
                     </motion.div>
 
                     <motion.div
-                        className="flex flex-col sm:flex-row gap-4"
+                        className="flex flex-col sm:flex-row gap-4 w-full"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     >
                         <Link
                             href="/auth/register"
-                            className="px-8 py-4 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2"
+                            className="px-8 py-4 w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2"
                         >
                             Tell us what you need
                             <ArrowRight size={18} />
                         </Link>
                         <Link
                             href="/contact"
-                            className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-slate-300 rounded-xl font-medium transition-all shadow-sm flex items-center justify-center"
+                            className="px-8 py-4 w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-slate-300 rounded-xl font-medium transition-all shadow-sm flex items-center justify-center"
                         >
                             Get a Quote
                         </Link>
@@ -79,7 +79,7 @@ export default function Hero() {
                 </div>
 
                 <motion.div
-                    className="relative h-[260px] sm:h-[340px] md:h-[460px] lg:h-[600px] w-full min-h-0"
+                    className="relative h-[220px] sm:h-[320px] md:h-[440px] lg:h-[600px] w-full min-h-0"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
