@@ -22,8 +22,9 @@ export default function LenisScroll({ children }: { children: React.ReactNode })
     }
 
     const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      // Higher lerp reduces perceived "lag" by catching up faster,
+      // while Lenis still keeps motion smooth.
+      lerp: 0.2,
       wheelMultiplier: 1,
       smoothWheel: true,
     });

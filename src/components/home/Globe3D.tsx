@@ -98,7 +98,10 @@ function RotatingGlobe() {
 export default function Globe3D() {
     return (
         <div className="w-full h-full cursor-grab active:cursor-grabbing">
-            <Canvas camera={{ position: [0, 0, 5.5], fov: 45 }}>
+            <Canvas
+                camera={{ position: [0, 0, 5.5], fov: 45 }}
+                dpr={[1, 1.5]}
+            >
                 <RotatingGlobe />
                 <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 1.5} minPolarAngle={Math.PI / 3} />
                 <Preload all />
