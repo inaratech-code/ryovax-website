@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import Link from "next/link";
 
 const testimonials = [
     {
@@ -83,6 +84,15 @@ export default function Testimonials() {
                         >
                             <ChevronRight size={24} />
                         </button>
+                    </div>
+
+                    <div className="mt-8">
+                        <Link
+                            href="/contact"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-slate-900 font-semibold transition-colors shadow-sm"
+                        >
+                            Share your testimonial
+                        </Link>
                     </div>
                 </div>
             </div>
