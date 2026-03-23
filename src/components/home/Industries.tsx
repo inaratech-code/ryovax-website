@@ -1,13 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Factory, ShoppingCart, HardHat, Pill } from "lucide-react";
+import { Factory, ShoppingCart, HardHat, Pill, MoreHorizontal } from "lucide-react";
 
 const industries = [
     { name: "Manufacturing", icon: Factory, color: "text-blue-700 bg-blue-50 border-blue-100" },
     { name: "FMCG", icon: ShoppingCart, color: "text-green-600 bg-green-50 border-green-100" },
     { name: "Construction", icon: HardHat, color: "text-amber-600 bg-amber-50 border-amber-100" },
     { name: "Pharma", icon: Pill, color: "text-rose-600 bg-rose-50 border-rose-100" },
+    { name: "Others", icon: MoreHorizontal, color: "text-slate-600 bg-slate-100 border-slate-200", subLabel: "50+" },
 ];
 
 export default function Industries() {
@@ -60,7 +61,12 @@ export default function Industries() {
                             <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-3 sm:mb-6 border-2 transition-transform group-hover:scale-110 ${industry.color}`}>
                                 <industry.icon size={30} strokeWidth={1.75} />
                             </div>
-                            <h3 className="text-base sm:text-xl font-bold text-slate-800 leading-tight">{industry.name}</h3>
+                            <div className="flex flex-col items-center gap-0.5">
+                                <h3 className="text-base sm:text-xl font-bold text-slate-800 leading-tight">{industry.name}</h3>
+                                {industry.subLabel ? (
+                                    <p className="text-xs sm:text-sm font-semibold text-slate-600">{industry.subLabel}</p>
+                                ) : null}
+                            </div>
                         </motion.div>
                     ))}
                 </div>
