@@ -71,7 +71,7 @@ export default function Footer() {
 
             </div>
 
-            <div className="container mx-auto px-4 sm:px-6 mt-12 sm:mt-16 md:mt-20 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500 gap-4 text-center md:text-left">
+            <div className="container mx-auto px-4 sm:px-6 mt-10 sm:mt-16 md:mt-20 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500 gap-4 text-center md:text-left w-full">
                 <p className="max-w-prose">
                     &copy; {currentYear} Ryovax Logistics Private Limited &amp;{" "}
                     <a
@@ -84,7 +84,7 @@ export default function Footer() {
                     </a>
                     . All rights reserved.
                 </p>
-                <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 font-medium">
+                <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 font-medium w-full md:w-auto">
                     <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                     <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
                     <Link href="/cookies" className="hover:text-white transition-colors">Cookie Settings</Link>
