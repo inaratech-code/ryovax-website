@@ -10,9 +10,9 @@ export default function Footer() {
 
     return (
         <footer className="bg-slate-900 border-t border-slate-800 pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-10">
-            <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 text-slate-400">
+            <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 text-slate-400">
 
-                <div className="flex flex-col gap-6 col-span-2 lg:col-span-1">
+                <div className="flex flex-col gap-5 col-span-2 lg:col-span-1">
                     <Link
                         href="/"
                         className="inline-flex items-center group border-0 outline-none ring-0 focus:outline-none focus-visible:outline-none"
@@ -71,7 +71,7 @@ export default function Footer() {
 
             </div>
 
-            <div className="container mx-auto px-4 sm:px-6 mt-10 sm:mt-16 md:mt-20 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500 gap-4 text-center md:text-left w-full">
+            <div className="container mx-auto px-4 sm:px-6 mt-8 sm:mt-12 md:mt-14 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500 gap-4 text-center md:text-left w-full">
                 <p className="max-w-prose">
                     &copy; {currentYear} Ryovax Logistics Private Limited &amp;{" "}
                     <a
