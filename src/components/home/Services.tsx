@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Globe, ShieldCheck, Truck, Lightbulb } from "lucide-react";
 
 export const services = [
@@ -66,25 +65,24 @@ export default function Services() {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                     {services.map((service, index) => (
-                        <Link key={service.title} href={service.href} className="block h-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
-                            <motion.div
-                                className="group p-5 sm:p-8 h-full rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer"
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                            >
-                                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3 ${service.color}`}>
-                                    <service.icon size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
-                                    {service.title}
-                                </h3>
-                                <p className="text-slate-600 leading-relaxed">
-                                    {service.description}
-                                </p>
-                            </motion.div>
-                        </Link>
+                        <motion.div
+                            key={service.title}
+                            className="group p-5 sm:p-8 h-full rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all hover:shadow-xl hover:-translate-y-2 cursor-default"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                        >
+                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3 ${service.color}`}>
+                                <service.icon size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
+                                {service.title}
+                            </h3>
+                            <p className="text-slate-600 leading-relaxed">
+                                {service.description}
+                            </p>
+                        </motion.div>
                     ))}
                 </div>
             </div>

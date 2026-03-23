@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Factory, ShoppingCart, HardHat, Pill } from "lucide-react";
-import Link from "next/link";
 
 const industries = [
     { name: "Manufacturing", icon: Factory, color: "text-blue-700 bg-blue-50 border-blue-100" },
@@ -42,39 +41,27 @@ export default function Industries() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        <Link
-                            href="/services"
-                            className="text-blue-700 font-semibold hover:text-blue-800 hover:underline underline-offset-4 inline-flex items-center gap-2"
-                            onClick={(e) => {
-                                // Defensive: ensure clicks on this link only navigate here.
-                                e.stopPropagation();
-                            }}
-                        >
+                        <span className="text-blue-700 font-semibold inline-flex items-center gap-2">
                             See all sectors &rarr;
-                        </Link>
+                        </span>
                     </motion.div>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                     {industries.map((industry, index) => (
-                        <Link
+                        <motion.div
                             key={industry.name}
-                            href={`/services?industry=${encodeURIComponent(industry.name)}`}
-                            className="block"
+                            className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center text-center hover:shadow-xl hover:-translate-y-1 transition-all min-h-[140px] sm:min-h-0"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.4, delay: index * 0.1 }}
                         >
-                            <motion.div
-                                className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center text-center hover:shadow-xl hover:-translate-y-1 transition-all min-h-[140px] sm:min-h-0"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4, delay: index * 0.1 }}
-                            >
-                                <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-3 sm:mb-6 border-2 transition-transform group-hover:scale-110 ${industry.color}`}>
-                                    <industry.icon size={30} strokeWidth={1.75} />
-                                </div>
-                                <h3 className="text-base sm:text-xl font-bold text-slate-800 leading-tight">{industry.name}</h3>
-                            </motion.div>
-                        </Link>
+                            <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-3 sm:mb-6 border-2 transition-transform group-hover:scale-110 ${industry.color}`}>
+                                <industry.icon size={30} strokeWidth={1.75} />
+                            </div>
+                            <h3 className="text-base sm:text-xl font-bold text-slate-800 leading-tight">{industry.name}</h3>
+                        </motion.div>
                     ))}
                 </div>
             </div>
