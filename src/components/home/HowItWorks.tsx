@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ClipboardList, Users, FileText, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 const steps = [
     {
@@ -64,25 +65,26 @@ export default function HowItWorks() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-8 max-w-5xl mx-auto lg:max-w-none relative z-10">
                         {steps.map((step, index) => (
-                            <motion.div
-                                key={step.title}
-                                className="flex flex-col items-center text-center relative group"
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: index * 0.2 }}
-                            >
-                                <div className="w-20 h-20 rounded-full bg-white border-4 border-slate-100 flex items-center justify-center text-blue-700 group-hover:border-blue-700 group-hover:text-blue-800 transition-colors shadow-lg mb-6 z-10 relative">
-                                    <step.icon size={32} />
-                                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-saffron-500 text-white font-bold flex items-center justify-center text-sm shadow-md">
-                                        {index + 1}
+                            <Link key={step.title} href="/contact" className="block">
+                                <motion.div
+                                    className="flex flex-col items-center text-center relative group"
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                                >
+                                    <div className="w-20 h-20 rounded-full bg-white border-4 border-slate-100 flex items-center justify-center text-blue-700 group-hover:border-blue-700 group-hover:text-blue-800 transition-colors shadow-lg mb-6 z-10 relative">
+                                        <step.icon size={32} />
+                                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-saffron-500 text-white font-bold flex items-center justify-center text-sm shadow-md">
+                                            {index + 1}
+                                        </div>
                                     </div>
-                                </div>
-                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">{step.title}</h3>
-                                <p className="text-slate-600 leading-relaxed text-sm px-1 sm:px-4">
-                                    {step.description}
-                                </p>
-                            </motion.div>
+                                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">{step.title}</h3>
+                                    <p className="text-slate-600 leading-relaxed text-sm px-1 sm:px-4">
+                                        {step.description}
+                                    </p>
+                                </motion.div>
+                            </Link>
                         ))}
                     </div>
                 </div>

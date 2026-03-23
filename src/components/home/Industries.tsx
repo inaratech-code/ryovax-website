@@ -57,19 +57,24 @@ export default function Industries() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                     {industries.map((industry, index) => (
-                        <motion.div
+                        <Link
                             key={industry.name}
-                            className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center text-center hover:shadow-xl hover:-translate-y-1 transition-all min-h-[140px] sm:min-h-0"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: index * 0.1 }}
+                            href={`/services?industry=${encodeURIComponent(industry.name)}`}
+                            className="block"
                         >
-                            <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-3 sm:mb-6 border-2 transition-transform group-hover:scale-110 ${industry.color}`}>
-                                <industry.icon size={30} strokeWidth={1.75} />
-                            </div>
-                            <h3 className="text-base sm:text-xl font-bold text-slate-800 leading-tight">{industry.name}</h3>
-                        </motion.div>
+                            <motion.div
+                                className="group bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center text-center hover:shadow-xl hover:-translate-y-1 transition-all min-h-[140px] sm:min-h-0"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                            >
+                                <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-3 sm:mb-6 border-2 transition-transform group-hover:scale-110 ${industry.color}`}>
+                                    <industry.icon size={30} strokeWidth={1.75} />
+                                </div>
+                                <h3 className="text-base sm:text-xl font-bold text-slate-800 leading-tight">{industry.name}</h3>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
             </div>
