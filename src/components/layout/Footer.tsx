@@ -12,7 +12,7 @@ export default function Footer() {
         <footer className="bg-slate-900 border-t border-slate-800 pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-10">
             <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 text-slate-400">
 
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 col-span-2 lg:col-span-1">
                     <Link
                         href="/"
                         className="inline-flex items-center group border-0 outline-none ring-0 focus:outline-none focus-visible:outline-none"
@@ -59,7 +59,7 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                <div className="col-start-2 lg:col-auto">
+                <div>
                     <h4 className="text-white font-semibold mb-6">Company</h4>
                     <ul className="space-y-4 text-sm font-medium">
                         <li><Link href="/about" className="hover:text-saffron-400 transition-colors">About Us</Link></li>
