@@ -59,7 +59,7 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                <div>
+                <div className="col-start-2 lg:col-auto">
                     <h4 className="text-white font-semibold mb-6">Company</h4>
                     <ul className="space-y-4 text-sm font-medium">
                         <li><Link href="/about" className="hover:text-saffron-400 transition-colors">About Us</Link></li>
