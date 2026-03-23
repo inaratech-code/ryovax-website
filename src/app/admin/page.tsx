@@ -7,12 +7,6 @@ export default function AdminDashboard() {
         <div className="space-y-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Admin Overview</h1>
-                <Link
-                    href="/contact"
-                    className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2.5 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-slate-900 font-semibold transition-colors shadow-sm"
-                >
-                    Share your testimonial
-                </Link>
             </div>
 
             {/* KPI Cards */}

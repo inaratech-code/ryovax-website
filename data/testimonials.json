@@ -1,0 +1,48 @@
+{
+  "pending": [
+    {
+      "id": "pov-1774283526111-yitshty",
+      "reviewType": "positive",
+      "name": "Akshay Mohpal",
+      "email": "inaratech2025@gmail.com",
+      "company": "Inata Tech",
+      "message": "Nice",
+      "submittedAt": "2026-03-23T16:32:06.112Z",
+      "rating": "5"
+    }
+  ],
+  "approved": [
+    {
+      "id": "seed-1",
+      "text": "Ryovax changed how we buy in Asia. We cut wait times by about 30% and kept quality where we needed it—our margins look better too.",
+      "author": "Sarah Jenkins",
+      "role": "Supply Chain Director",
+      "company": "Nordic Manufacturing Solutions",
+      "approvedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "seed-2",
+      "text": "Finally we can see where our shipments are, and we trust who they connect us with. That alone saved us a ton of stress.",
+      "author": "David Chen",
+      "role": "Head of Buying",
+      "company": "Global Builders Inc.",
+      "approvedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "seed-3",
+      "text": "We couldn’t find solid suppliers in India until Ryovax. They know the ground there and still held everything to the standard we expect.",
+      "author": "Elena Rodriguez",
+      "role": "Operations Manager",
+      "company": "HealthCore Pharma",
+      "approvedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "pov-1774283552131-uefoydv",
+      "text": "Bad",
+      "author": "Inara Tech",
+      "role": "Timeline feedback",
+      "company": "Inata Tech",
+      "approvedAt": "2026-03-23T16:32:43.662Z"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 "use client";
 
-import { Users, FileText, Settings, LayoutDashboard, Flag, Activity, PieChart } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Users, FileText, Settings, LayoutDashboard, Flag, Activity, PieChart, MessageSquareQuote, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import DashboardAppShell from "@/components/layout/DashboardAppShell";
 
@@ -11,9 +13,13 @@ const navItems = [
     { href: "/admin/users", label: "Manage Users", icon: Users },
     { href: "/admin/rfqs", label: "All requests", icon: FileText },
     { href: "/admin/approvals", label: "Approvals", icon: Flag },
+    { href: "/admin/testimonials", label: "POV & testimonials", icon: MessageSquareQuote },
 ];
 
 export default function AdminAppLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
+    const [refreshing, setRefreshing] = useState(false);
+
     const sidebarFooter = (
         <>
             <Link
@@ -36,7 +42,20 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
     );
 
     const header = (
-        <header className="min-h-[4.5rem] bg-white border-b border-slate-200 flex items-center justify-end px-4 sm:px-6 md:px-8 py-3 md:sticky md:top-0 md:z-20">
+        <header className="min-h-[4.5rem] bg-white border-b border-slate-200 flex items-center justify-end gap-2 px-4 sm:px-6 md:px-8 py-3 md:sticky md:top-0 md:z-20">
+            <button
+                type="button"
+                onClick={() => {
+                    setRefreshing(true);
+                    router.refresh();
+                    setTimeout(() => setRefreshing(false), 450);
+                }}
+                className="p-2 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-slate-100 transition-colors"
+                aria-label="Refresh page"
+                title="Refresh page"
+            >
+                <RefreshCcw size={18} className={refreshing ? "animate-spin" : ""} />
+            </button>
             <Link
                 href="/auth/login"
                 className="text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors duration-200 ease-out px-2 py-1 rounded-md hover:bg-slate-50"
