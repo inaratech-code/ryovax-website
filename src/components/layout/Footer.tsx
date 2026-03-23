@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Linkedin, Twitter, Facebook, Instagram } from "lucide-react";
 import Link from "next/link";
 import RyovaxLogo from "@/components/brand/RyovaxLogo";
-import NewsletterForm from "@/components/forms/NewsletterForm";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -68,12 +67,6 @@ export default function Footer() {
                         <li><Link href="/contact" className="hover:text-saffron-400 transition-colors">Partner Network</Link></li>
                         <li><Link href="/contact" className="hover:text-saffron-400 transition-colors">Get help</Link></li>
                     </ul>
-                </div>
-
-                <div>
-                    <h4 className="text-white font-semibold mb-6">Stay Updated</h4>
-                    <p className="text-sm mb-4">Get occasional tips on buying, shipping, and working with suppliers.</p>
-                    <NewsletterForm />
                 </div>
 
             </div>
