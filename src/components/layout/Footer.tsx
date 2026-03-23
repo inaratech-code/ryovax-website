@@ -79,7 +79,17 @@ export default function Footer() {
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 mt-12 sm:mt-16 md:mt-20 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-sm text-slate-500 gap-4 text-center md:text-left">
-                <p className="max-w-prose">&copy; {currentYear} Ryovax Logistics Private Limited. All rights reserved.</p>
+                <p className="max-w-prose">
+                    &copy; {currentYear} Ryovax Logistics Private Limited. All rights reserved.{" "}
+                    <a
+                        href="https://www.inaratech.com.np"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-saffron-400 hover:text-saffron-300 transition-colors"
+                    >
+                        Inara Tech
+                    </a>
+                </p>
                 <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 font-medium">
                     <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                     <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
