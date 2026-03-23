@@ -31,7 +31,7 @@ export default function Footer() {
                     <div className="flex items-center gap-4 mt-4">
                         {(
                             [
-                                { Icon: Linkedin, href: "https://www.linkedin.com/" },
+                                { Icon: Linkedin, href: "https://www.linkedin.com/company/ryovax-flow-flawlessly/about/?viewAsMember=true" },
                                 { Icon: Twitter, href: "https://twitter.com/" },
                                 { Icon: Facebook, href: "https://www.facebook.com/" },
                                 { Icon: Instagram, href: "https://www.instagram.com/" },
