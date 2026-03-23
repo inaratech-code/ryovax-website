@@ -45,6 +45,10 @@ export default function Industries() {
                         <Link
                             href="/services"
                             className="text-blue-700 font-semibold hover:text-blue-800 hover:underline underline-offset-4 inline-flex items-center gap-2"
+                            onClick={(e) => {
+                                // Defensive: ensure clicks on this link only navigate here.
+                                e.stopPropagation();
+                            }}
                         >
                             See all sectors &rarr;
                         </Link>
