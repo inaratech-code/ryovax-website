@@ -24,10 +24,10 @@ export default function Footer() {
                             className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)] group-hover:opacity-95 transition-opacity duration-200 max-w-full object-contain object-left"
                         />
                     </Link>
-                    <p className="text-sm leading-relaxed max-w-xs">
+                    <p className="text-sm leading-relaxed text-justify max-w-none sm:max-w-xs md:max-w-sm">
                         Based in India, helping businesses everywhere buy and ship goods with clear steps and honest communication.
                     </p>
-                    <div className="flex items-center gap-4 mt-4">
+                    <div className="flex items-center gap-4 mt-4 w-fit rounded-2xl border border-slate-800 bg-slate-900/40 p-2">
                         {(
                             [
                                 { Icon: Linkedin, href: "https://www.linkedin.com/company/ryovax-flow-flawlessly/about/?viewAsMember=true" },
@@ -49,7 +49,7 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div>
+                <div className="mt-4 sm:mt-8 lg:mt-0">
                     <h4 className="text-white font-semibold mb-6">What we offer</h4>
                     <ul className="space-y-4 text-sm font-medium">
                         <li><Link href="/#services" className="hover:text-saffron-400 transition-colors">Buying worldwide</Link></li>
