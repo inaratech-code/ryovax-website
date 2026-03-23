@@ -85,7 +85,7 @@ export default function Footer() {
                         href="https://www.inaratech.com.np"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-saffron-400 hover:text-saffron-300 transition-colors"
+                        className="text-slate-500 hover:text-slate-300 transition-colors"
                     >
                         Inara Tech
                     </a>
