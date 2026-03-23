@@ -11,7 +11,7 @@ export default function Footer() {
 
     return (
         <footer className="bg-slate-900 border-t border-slate-800 pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-10">
-            <div className="container mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 text-slate-400">
+            <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 text-slate-400">
 
                 <div className="flex flex-col gap-6">
                     <Link
