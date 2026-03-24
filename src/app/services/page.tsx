@@ -16,7 +16,7 @@ export default function ServicesPage() {
     {
       title: "Buying from India",
       description: "Tap into India’s factories with our help on checking suppliers, quality, and price talks.",
-      icon: "🇮🇳"
+      icon: "india-flag"
     },
     {
       title: "Finding the right supplier",
@@ -64,7 +64,23 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 sm:px-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
           {services.map((service, i) => (
             <div key={i} className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow hover:border-blue-200 group">
-              <div className="text-3xl sm:text-4xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform origin-left">{service.icon}</div>
+              <div className="text-3xl sm:text-4xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform origin-left">
+                {service.icon === "india-flag" ? (
+                  <span
+                    aria-label="India flag"
+                    title="India"
+                    className="relative inline-block w-10 h-7 rounded-[4px] overflow-hidden border border-slate-300 align-middle"
+                  >
+                    <span className="absolute inset-x-0 top-0 h-1/3 bg-[#FF9933]" />
+                    <span className="absolute inset-x-0 top-1/3 h-1/3 bg-white" />
+                    <span className="absolute inset-x-0 bottom-0 h-1/3 bg-[#138808]" />
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-[#000080]" />
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 rounded-full bg-[#000080]" />
+                  </span>
+                ) : (
+                  service.icon
+                )}
+              </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-4">{service.title}</h3>
               <p className="text-slate-600 leading-relaxed">{service.description}</p>
             </div>

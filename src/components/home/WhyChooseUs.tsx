@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check, ShieldAlert, Award, TrendingDown } from "lucide-react";
+import Link from "next/link";
 
 const features = [
     {
@@ -46,9 +47,12 @@ export default function WhyChooseUs() {
                         We don’t just introduce you to a supplier and vanish. We stay in your corner on quality, timing, and getting stuff from A to B.
                     </p>
 
-                    <span className="inline-flex w-full sm:w-auto justify-center px-8 py-4 bg-slate-900 text-white rounded-xl font-medium shadow-lg cursor-default select-none">
+                    <Link
+                        href="/#how-it-works"
+                        className="inline-flex w-full sm:w-auto justify-center px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition-all shadow-lg hover:-translate-y-1"
+                    >
                         See how it works
-                    </span>
+                    </Link>
                 </motion.div>
 
                 <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
