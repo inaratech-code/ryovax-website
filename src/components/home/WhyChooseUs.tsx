@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Check, ShieldAlert, Award, TrendingDown } from "lucide-react";
-import Link from "next/link";
 
 const features = [
     {
@@ -47,31 +46,27 @@ export default function WhyChooseUs() {
                         We don’t just introduce you to a supplier and vanish. We stay in your corner on quality, timing, and getting stuff from A to B.
                     </p>
 
-                    <Link
-                        href="/#how-it-works"
-                        className="inline-flex w-full sm:w-auto justify-center px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition-all shadow-lg hover:-translate-y-1"
-                    >
+                    <span className="inline-flex w-full sm:w-auto justify-center px-8 py-4 bg-slate-900 text-white rounded-xl font-medium shadow-lg cursor-default select-none">
                         See how it works
-                    </Link>
+                    </span>
                 </motion.div>
 
                 <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                     {features.map((feature, index) => (
-                        <Link key={feature.title} href="/services" className="block">
-                            <motion.div
-                                className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                            >
-                                <div className="w-12 h-12 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-6">
-                                    <feature.icon size={24} />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-                                <p className="text-slate-600 text-sm leading-relaxed">{feature.description}</p>
-                            </motion.div>
-                        </Link>
+                        <motion.div
+                            key={feature.title}
+                            className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                        >
+                            <div className="w-12 h-12 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-6">
+                                <feature.icon size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed">{feature.description}</p>
+                        </motion.div>
                     ))}
                 </div>
             </div>

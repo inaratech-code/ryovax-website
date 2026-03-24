@@ -31,8 +31,8 @@ export default function Footer() {
                         {(
                             [
                                 { Icon: Linkedin, href: "https://www.linkedin.com/company/ryovax-flow-flawlessly/about/?viewAsMember=true" },
-                                { Icon: Twitter, href: "https://twitter.com/" },
-                                { Icon: Facebook, href: "https://www.facebook.com/" },
+                                { Icon: Twitter, href: "https://x.com/inforyovax?s=21" },
+                                { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61578526150760" },
                                 { Icon: Instagram, href: "https://www.instagram.com/" },
                             ] as const
                         ).map(({ Icon, href }, i) => (
