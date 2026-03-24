@@ -88,12 +88,12 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link
                     href="/"
-                    className="flex items-center group shrink-0 min-w-0 max-w-[min(100%,240px)] sm:max-w-none border-0 outline-none ring-0 focus:outline-none focus-visible:outline-none"
+                    className="flex items-center group shrink-0 min-w-0 max-w-[min(100%,300px)] sm:max-w-none border-0 outline-none ring-0 focus:outline-none focus-visible:outline-none"
                     aria-label="Ryovax home"
                 >
                     <RyovaxLogo
                         priority
-                        heightClass="h-12 sm:h-16 md:h-20 lg:h-24 xl:h-28"
+                        heightClass="h-14 sm:h-[4.5rem] md:h-24 lg:h-28 xl:h-32"
                         className="group-hover:opacity-90 transition-opacity max-w-full object-contain object-left"
                     />
                 </Link>

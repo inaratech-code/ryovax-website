@@ -20,7 +20,7 @@ export default function Footer() {
                     >
                         <RyovaxLogo
                             priority={false}
-                            heightClass="h-16 sm:h-20 md:h-24 lg:h-28"
+                            heightClass="h-20 sm:h-24 md:h-28 lg:h-32"
                             className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)] group-hover:opacity-95 transition-opacity duration-200 max-w-full object-contain object-left"
                         />
                     </Link>
