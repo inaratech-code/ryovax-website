@@ -19,8 +19,8 @@ export default function CookiesPage() {
             </p>
             <p>
               For questions, reach us at{" "}
-              <a href="mailto:hello@ryovax.com" className="text-blue-700 font-medium hover:underline">
-                hello@ryovax.com
+              <a href="mailto:info@ryovax.com" className="text-blue-700 font-medium hover:underline">
+                info@ryovax.com
               </a>
               .
             </p>

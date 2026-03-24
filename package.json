@@ -6,13 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:testimonials": "node scripts/migrate-testimonials-to-firestore.mjs",
+    "seed:firestore": "node scripts/seed-firestore-demo.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@swc/helpers": "^0.5.19",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.2.0",
+    "firebase": "^12.11.0",
+    "firebase-admin": "^12.7.0",
     "framer-motion": "^12.38.0",
+    "jose": "^6.2.2",
     "lenis": "^1.3.19",
     "lucide-react": "^0.577.0",
     "next": "^16.2.1",

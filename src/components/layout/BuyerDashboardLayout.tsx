@@ -74,7 +74,13 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
     );
 
     return (
-        <DashboardAppShell navItems={navItems} sidebarFooter={sidebarFooter} header={header} activeTone="dashboard">
+        <DashboardAppShell
+            navItems={navItems}
+            sidebarFooter={sidebarFooter}
+            header={header}
+            sidebarTitle="Buyer"
+            activeTone="dashboard"
+        >
             {children}
         </DashboardAppShell>
     );

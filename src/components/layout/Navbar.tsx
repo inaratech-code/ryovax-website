@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { CalendarClock, Menu, X } from "lucide-react";
 import Link from "next/link";
 import RyovaxLogo from "@/components/brand/RyovaxLogo";
 import { useState, useEffect, useRef } from "react";
@@ -20,6 +20,7 @@ function useBodyScrollLock(locked: boolean) {
 
 const navLinks = [
     { name: "Services", href: "/services" },
+    { name: "Book appointment", href: "/book-appointment" },
     { name: "Expert advice", href: "/advisory" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
@@ -112,8 +113,15 @@ export default function Navbar() {
                 </nav>
 
                 {/* Auth & Actions */}
-                <div className="hidden lg:flex items-center gap-4">
-                    <Link href="/auth/login" className="text-sm font-medium text-slate-600 hover:text-blue-700 px-4 py-2 transition-colors">
+                <div className="hidden lg:flex items-center gap-3">
+                    <Link
+                        href="/book-appointment"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-saffron-800 bg-white border-2 border-saffron-500 hover:bg-saffron-50 px-4 py-2.5 rounded-lg shadow-sm transition-all"
+                    >
+                        <CalendarClock size={17} className="shrink-0" aria-hidden />
+                        Schedule call
+                    </Link>
+                    <Link href="/auth/login" className="text-sm font-medium text-slate-600 hover:text-blue-700 px-3 py-2 transition-colors">
                         Sign In
                     </Link>
                     <Link href="/auth/register" className="text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 px-5 py-2.5 rounded-lg shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5">
@@ -160,6 +168,14 @@ export default function Navbar() {
                     </nav>
 
                     <div className="flex flex-col items-center gap-3 sm:gap-4 mt-4 sm:mt-8 w-full max-w-sm px-4">
+                        <Link
+                            href="/book-appointment"
+                            className="w-full inline-flex items-center justify-center gap-2 text-center py-4 border-2 border-saffron-500 bg-saffron-50 rounded-xl font-semibold text-saffron-900"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <CalendarClock size={20} aria-hidden />
+                            Schedule a call
+                        </Link>
                         <Link
                             href="/auth/login"
                             className="w-full text-center py-4 border-2 border-slate-200 rounded-xl font-semibold text-slate-800"

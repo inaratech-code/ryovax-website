@@ -48,10 +48,12 @@ export default function DashboardAppShell({
 
     const isActive = (href: string) => {
         if (!href || href === "#") return false;
-        if (href === "/dashboard") return pathname === "/dashboard";
-        if (href === "/admin") return pathname === "/admin";
-        if (pathname === href) return true;
-        if (href.length > 1 && pathname.startsWith(`${href}/`)) return true;
+        const target = href.split("#")[0]?.split("?")[0] ?? href;
+        if (!target) return false;
+        if (target === "/dashboard") return pathname === "/dashboard";
+        if (target === "/admin") return pathname === "/admin";
+        if (pathname === target) return true;
+        if (target.length > 1 && pathname.startsWith(`${target}/`)) return true;
         return false;
     };
 

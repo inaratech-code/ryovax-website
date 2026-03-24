@@ -56,10 +56,10 @@ export default function CTA() {
                             <ArrowRight size={18} />
                         </Link>
                         <Link
-                            href="/services"
+                            href="/book-appointment"
                             className="px-8 py-4 w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 rounded-xl font-medium transition-all shadow-sm text-center"
                         >
-                            Browse suppliers
+                            Book appointment
                         </Link>
                     </div>
                 </motion.div>

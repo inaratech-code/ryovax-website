@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { approveTestimonial, rejectTestimonial } from "@/app/admin/testimonials/actions";
+import { Trash2 } from "lucide-react";
+import { approveTestimonial, deletePendingTestimonial, rejectTestimonial } from "@/app/admin/(dashboard)/testimonials/actions";
 import type { PendingSubmission } from "@/lib/testimonials-store";
 
 export default function AdminTestimonialsQueue({ initialPending }: { initialPending: PendingSubmission[] }) {
@@ -27,6 +28,15 @@ export default function AdminTestimonialsQueue({ initialPending }: { initialPend
         });
     }
 
+    function handleDelete(id: string) {
+        startTransition(() => {
+            void (async () => {
+                await deletePendingTestimonial(id);
+                router.refresh();
+            })();
+        });
+    }
+
     if (initialPending.length === 0) {
         return (
             <p className="text-slate-600 text-sm py-4">
@@ -36,60 +46,88 @@ export default function AdminTestimonialsQueue({ initialPending }: { initialPend
     }
 
     return (
-        <ul className="divide-y divide-slate-100">
-            {initialPending.map((p) => (
-                <li key={p.id} className="py-5 first:pt-0">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                        <div className="min-w-0 space-y-2">
-                            <div className="flex flex-wrap items-center gap-2">
+        <div className="overflow-x-auto">
+            <table className="w-full min-w-[880px] text-sm text-left border-collapse">
+                <thead>
+                    <tr className="bg-slate-50 text-slate-600 font-medium border-b border-slate-200">
+                        <th className="px-4 py-3 whitespace-nowrap">Type</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Submitted</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Name</th>
+                        <th className="px-4 py-3 min-w-[200px]">Email · Company</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Rating / issue</th>
+                        <th className="px-4 py-3 min-w-[220px]">Message</th>
+                        <th className="px-4 py-3 text-right whitespace-nowrap w-[1%]">Actions</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                    {initialPending.map((p) => (
+                        <tr key={p.id} className="hover:bg-slate-50/80 transition-colors align-top">
+                            <td className="px-4 py-4">
                                 <span
                                     className={
                                         p.reviewType === "positive"
-                                            ? "text-xs font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded"
-                                            : "text-xs font-semibold uppercase tracking-wide text-amber-800 bg-amber-50 px-2 py-0.5 rounded"
+                                            ? "inline-block text-xs font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded"
+                                            : "inline-block text-xs font-semibold uppercase tracking-wide text-amber-800 bg-amber-50 px-2 py-0.5 rounded"
                                     }
                                 >
                                     {p.reviewType === "positive" ? "Positive" : "Negative"}
                                 </span>
-                                <span className="text-xs text-slate-500">
-                                    {new Date(p.submittedAt).toLocaleString()}
-                                </span>
-                            </div>
-                            <p className="font-semibold text-slate-900">{p.name}</p>
-                            <p className="text-sm text-slate-600">
-                                {p.email} · {p.company}
-                            </p>
-                            {p.rating != null && (
-                                <p className="text-sm text-slate-600">Rating: {p.rating}/5</p>
-                            )}
-                            {p.issueType != null && (
-                                <p className="text-sm text-slate-600">Issue: {p.issueType}</p>
-                            )}
-                            <blockquote className="text-slate-800 text-sm border-l-2 border-slate-200 pl-3 mt-2 whitespace-pre-wrap">
-                                {p.message}
-                            </blockquote>
-                        </div>
-                        <div className="flex shrink-0 gap-2">
-                            <button
-                                type="button"
-                                disabled={isPending}
-                                onClick={() => handleApprove(p.id)}
-                                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium disabled:opacity-50"
-                            >
-                                Approve
-                            </button>
-                            <button
-                                type="button"
-                                disabled={isPending}
-                                onClick={() => handleReject(p.id)}
-                                className="px-4 py-2 rounded-lg border border-slate-300 text-slate-800 text-sm font-medium hover:bg-slate-50 disabled:opacity-50"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                </li>
-            ))}
-        </ul>
+                            </td>
+                            <td className="px-4 py-4 text-slate-500 whitespace-nowrap">
+                                {new Date(p.submittedAt).toLocaleString()}
+                            </td>
+                            <td className="px-4 py-4 font-semibold text-slate-900">{p.name}</td>
+                            <td className="px-4 py-4 text-slate-600">
+                                <span className="text-slate-800">{p.email}</span>
+                                <span className="text-slate-400 mx-1">·</span>
+                                <span>{p.company}</span>
+                            </td>
+                            <td className="px-4 py-4 text-slate-600 whitespace-nowrap">
+                                {p.rating != null && <span>Rating: {p.rating}/5</span>}
+                                {p.rating == null && p.issueType != null && <span>Issue: {p.issueType}</span>}
+                                {p.rating == null && p.issueType == null && (
+                                    <span className="text-slate-400">N/A</span>
+                                )}
+                            </td>
+                            <td className="px-4 py-4 text-slate-800">
+                                <p className="line-clamp-3 max-w-md" title={p.message}>
+                                    {p.message}
+                                </p>
+                            </td>
+                            <td className="px-4 py-4">
+                                <div className="flex flex-wrap items-center justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={() => handleApprove(p.id)}
+                                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold disabled:opacity-50"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={() => handleReject(p.id)}
+                                        className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-800 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50"
+                                    >
+                                        Reject
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={() => handleDelete(p.id)}
+                                        className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 disabled:opacity-50"
+                                        aria-label="Delete submission"
+                                        title="Delete submission"
+                                    >
+                                        <Trash2 size={18} strokeWidth={2} />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 }

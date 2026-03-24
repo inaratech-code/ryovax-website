@@ -1,15 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Globe2 } from "lucide-react";
+import { ArrowRight, CalendarClock, Globe2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 // Use dynamic import for Three.js components to avoid SSR issues
 const Globe3D = dynamic(() => import("./Globe3D"), { ssr: false });
 
+function GlobePlaceholder() {
+    return (
+        <div
+            className="absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100/90 via-blue-50/40 to-slate-100/80 border border-slate-200/40"
+            aria-hidden
+        >
+            <div className="h-20 w-20 sm:h-28 sm:w-28 rounded-full border-2 border-dashed border-slate-300/70 opacity-50" />
+        </div>
+    );
+}
+
 export default function Hero() {
+    const [mountGlobe, setMountGlobe] = useState(false);
+
+    useEffect(() => {
+        const w = window as Window & {
+            requestIdleCallback?: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => number;
+            cancelIdleCallback?: (id: number) => void;
+        };
+        if (typeof w.requestIdleCallback === "function") {
+            const id = w.requestIdleCallback(() => setMountGlobe(true), { timeout: 2000 });
+            return () => w.cancelIdleCallback?.(id);
+        }
+        const t = window.setTimeout(() => setMountGlobe(true), 400);
+        return () => clearTimeout(t);
+    }, []);
+
     return (
         <section className="relative min-h-screen pt-28 sm:pt-32 md:pt-40 lg:pt-44 pb-10 sm:pb-12 overflow-hidden flex items-center bg-slate-50">
             <div className="absolute inset-0 z-0">
@@ -41,21 +68,28 @@ export default function Hero() {
                     </motion.div>
 
                     <motion.div
-                        className="flex flex-col sm:flex-row gap-4 w-full"
+                        className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 w-full"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     >
                         <Link
                             href="/auth/register"
-                            className="px-8 py-4 w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2"
+                            className="px-8 py-4 w-full sm:w-auto min-w-[200px] bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2"
                         >
                             Tell us what you need
                             <ArrowRight size={18} />
                         </Link>
                         <Link
+                            href="/book-appointment"
+                            className="px-8 py-4 w-full sm:w-auto min-w-[200px] bg-white hover:bg-saffron-50 text-slate-900 border-2 border-saffron-500 hover:border-saffron-600 rounded-xl font-semibold transition-all shadow-sm flex items-center justify-center gap-2"
+                        >
+                            <CalendarClock size={18} className="text-saffron-600 shrink-0" />
+                            Schedule a call
+                        </Link>
+                        <Link
                             href="/contact"
-                            className="px-8 py-4 w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-slate-300 rounded-xl font-medium transition-all shadow-sm flex items-center justify-center"
+                            className="px-8 py-4 w-full sm:w-auto min-w-[200px] bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-slate-300 rounded-xl font-medium transition-all shadow-sm flex items-center justify-center"
                         >
                             Get a Quote
                         </Link>
@@ -69,8 +103,20 @@ export default function Hero() {
                     >
                         <div className="flex -space-x-3">
                             {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className={`w-10 h-10 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden z-[${10 - i}]`}>
-                                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt={`User ${i}`} />
+                                <div
+                                    key={i}
+                                    className="relative w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shrink-0"
+                                    style={{ zIndex: 10 - i }}
+                                >
+                                    <Image
+                                        src={`https://i.pravatar.cc/100?img=${i + 10}`}
+                                        alt=""
+                                        width={40}
+                                        height={40}
+                                        className="object-cover"
+                                        loading="lazy"
+                                        sizes="40px"
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -85,9 +131,13 @@ export default function Hero() {
                     transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
                 >
                     <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-slate-50 via-transparent to-transparent z-10" />
-                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-slate-400">Loading map…</div>}>
-                        <Globe3D />
-                    </Suspense>
+                    {mountGlobe ? (
+                        <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">Loading…</div>}>
+                            <Globe3D />
+                        </Suspense>
+                    ) : (
+                        <GlobePlaceholder />
+                    )}
                 </motion.div>
             </div>
 

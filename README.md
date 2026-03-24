@@ -18,3 +18,5 @@ This is a [Next.js](https://nextjs.org) app. See the [Next.js documentation](htt
 ## Deploy
 
 The easiest path is [Vercel](https://vercel.com/new) — see [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying).
+
+For **Cloudflare** (or any host), configure env vars for Firebase and the admin panel; see **[docs/admin-production-checklist.md](docs/admin-production-checklist.md)**. A low-visibility **admin** entry point is the small **·** link after “All rights reserved.” in the site footer (still protected by `ADMIN_PANEL_ENABLED` and optional `/admin/login` in production).

@@ -34,16 +34,19 @@ export default function ContactPage() {
                     <p className="text-base sm:text-lg">Cyber City, Gurugram<br />Haryana 122002, India</p>
                   </div>
                   <div>
-                    <h3 className="text-blue-200 text-sm font-semibold uppercase tracking-wider mb-2">Other locations</h3>
-                    <p className="text-base sm:text-lg">Singapore • Dubai • London</p>
+                    <h3 className="text-blue-200 text-sm font-semibold uppercase tracking-wider mb-2">Other places</h3>
+                    <p className="text-base sm:text-lg leading-relaxed">
+                      Middle East · Asia · Americas (North, South &amp; Latin) · Africa · Caribbean
+                    </p>
                   </div>
                   <div>
-                    <h3 className="text-blue-200 text-sm font-semibold uppercase tracking-wider mb-2">Email Us</h3>
-                    <p className="text-base sm:text-lg break-all">hello@ryovax.com</p>
-                  </div>
-                  <div>
-                    <h3 className="text-blue-200 text-sm font-semibold uppercase tracking-wider mb-2">Call Us</h3>
-                    <p className="text-base sm:text-lg">+91 (800) 123-4567</p>
+                    <h3 className="text-blue-200 text-sm font-semibold uppercase tracking-wider mb-2">Email</h3>
+                    <p className="text-base sm:text-lg break-all">
+                      Email -{" "}
+                      <a href="mailto:info@ryovax.com" className="font-medium hover:underline">
+                        info@ryovax.com
+                      </a>
+                    </p>
                   </div>
                 </div>
               </div>

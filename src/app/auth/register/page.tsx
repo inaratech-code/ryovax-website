@@ -1,13 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Building2, Factory } from "lucide-react";
 import RyovaxLogo from "@/components/brand/RyovaxLogo";
 
 export default function RegisterPage() {
     const [role, setRole] = useState<"none" | "buyer" | "supplier">("none");
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const r = params.get("role");
+        if (r === "buyer" || r === "supplier") setRole(r);
+    }, []);
 
     return (
         <div className="min-h-screen grid lg:grid-cols-2 bg-slate-50">
@@ -70,6 +76,7 @@ export default function RegisterPage() {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             className="space-y-5"
+                            onSubmit={(e) => e.preventDefault()}
                         >
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
@@ -93,7 +100,10 @@ export default function RegisterPage() {
                                 <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
                                 <input type="password" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600" />
                             </div>
-                            <Link href={`/dashboard?role=${role}`} className={`w-full font-semibold py-3 rounded-xl transition-all shadow-md block text-center ${role === "buyer" ? "bg-blue-700 hover:bg-blue-800 text-white" : "bg-saffron-500 hover:bg-saffron-600 text-slate-900"}`}>
+                            <Link
+                                href={role === "buyer" ? "/dashboard" : "/dashboard/supplier"}
+                                className={`w-full font-semibold py-3 rounded-xl transition-all shadow-md block text-center ${role === "buyer" ? "bg-blue-700 hover:bg-blue-800 text-white" : "bg-saffron-500 hover:bg-saffron-600 text-slate-900"}`}
+                            >
                                 Register as {role === "buyer" ? "Buyer" : "Supplier"}
                             </Link>
                         </motion.form>

@@ -25,7 +25,8 @@ export default function Footer() {
                         />
                     </Link>
                     <p className="text-sm leading-relaxed text-justify max-w-none sm:max-w-xs md:max-w-sm">
-                        Based in India, helping businesses everywhere buy and ship goods with clear steps and honest communication.
+                        Based in India, helping businesses across the Middle East, Asia, the Americas (North, South &amp;
+                        Latin), Africa, and the Caribbean buy and ship goods with clear steps and honest communication.
                     </p>
                     <div className="flex items-center gap-4 mt-4 w-fit rounded-2xl border border-slate-800 bg-slate-900/40 p-2">
                         {(
@@ -83,6 +84,15 @@ export default function Footer() {
                         Inara Tech
                     </a>
                     . All rights reserved.
+                    {/* Low-visibility staff entry; middleware still gates /admin in production. */}
+                    <Link
+                        href="/admin"
+                        className="ml-0.5 inline text-[10px] text-slate-800/70 hover:text-slate-500 align-super opacity-50 hover:opacity-90 transition-opacity"
+                        aria-label="Admin sign-in"
+                        title="Admin"
+                    >
+                        ·
+                    </Link>
                 </p>
                 <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 font-medium w-full md:w-auto">
                     <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>

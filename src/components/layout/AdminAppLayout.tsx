@@ -2,16 +2,27 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Users, FileText, Settings, LayoutDashboard, Flag, Activity, PieChart, MessageSquareQuote, RefreshCcw } from "lucide-react";
+import {
+    Users,
+    FileText,
+    Settings,
+    LayoutDashboard,
+    Flag,
+    Activity,
+    MessageSquareQuote,
+    RefreshCcw,
+    CalendarClock,
+} from "lucide-react";
 import Link from "next/link";
 import DashboardAppShell from "@/components/layout/DashboardAppShell";
+import { adminLogout } from "@/app/admin/login/actions";
 
 const navItems = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/admin/analytics", label: "Web analytics", icon: Activity },
-    { href: "/admin/reports", label: "Reports & revenue", icon: PieChart },
     { href: "/admin/users", label: "Manage Users", icon: Users },
     { href: "/admin/rfqs", label: "All requests", icon: FileText },
+    { href: "/admin/appointments", label: "Appointments", icon: CalendarClock },
     { href: "/admin/approvals", label: "Approvals", icon: Flag },
     { href: "/admin/testimonials", label: "POV & testimonials", icon: MessageSquareQuote },
 ];
@@ -56,12 +67,14 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
             >
                 <RefreshCcw size={18} className={refreshing ? "animate-spin" : ""} />
             </button>
-            <Link
-                href="/auth/login"
-                className="text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors duration-200 ease-out px-2 py-1 rounded-md hover:bg-slate-50"
-            >
-                Log out
-            </Link>
+            <form action={adminLogout}>
+                <button
+                    type="submit"
+                    className="text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors duration-200 ease-out px-2 py-1 rounded-md hover:bg-slate-50"
+                >
+                    Log out
+                </button>
+            </form>
         </header>
     );
 

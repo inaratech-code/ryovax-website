@@ -19,8 +19,8 @@ export default function PrivacyPage() {
             </p>
             <p>
               We describe what data we collect, how we use it, who we share it with, how long we keep it, and what choices you have. Contact us at{" "}
-              <a href="mailto:hello@ryovax.com" className="text-blue-700 font-medium hover:underline">
-                hello@ryovax.com
+              <a href="mailto:info@ryovax.com" className="text-blue-700 font-medium hover:underline">
+                info@ryovax.com
               </a>{" "}
               with questions.
             </p>

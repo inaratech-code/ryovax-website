@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { isFirebaseConfigured } from "@/lib/firebase-admin";
 import {
+    addPendingSubmission,
     newId,
     readTestimonials,
-    writeTestimonials,
     type PendingSubmission,
 } from "@/lib/testimonials-store";
 
@@ -32,6 +33,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    if (!isFirebaseConfigured()) {
+        return NextResponse.json(
+            { error: "Server is not configured for submissions (Firebase)." },
+            { status: 503 },
+        );
+    }
+
     const submission: PendingSubmission = {
         id: newId(),
         reviewType,
@@ -50,9 +58,7 @@ export async function POST(req: Request) {
         submission.issueType = issueType;
     }
 
-    const data = await readTestimonials();
-    data.pending.push(submission);
-    await writeTestimonials(data);
+    await addPendingSubmission(submission);
 
     return NextResponse.json({ ok: true, id: submission.id });
 }

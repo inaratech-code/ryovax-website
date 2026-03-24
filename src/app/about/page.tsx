@@ -19,7 +19,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center max-w-4xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">Making global buying simpler</h1>
           <p className="text-base sm:text-lg md:text-xl text-blue-100 leading-relaxed">
-            Ryovax helps companies find trusted suppliers—especially in India—and move goods across borders without drowning in jargon or paperwork.
+            Ryovax helps companies find trusted suppliers especially in India and move goods across borders without drowning in jargon or paperwork.
           </p>
         </div>
       </section>

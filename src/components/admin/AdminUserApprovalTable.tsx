@@ -1,30 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Factory, UserCheck } from "lucide-react";
+import { approveUserRegistration, rejectUserRegistration } from "@/app/admin/(dashboard)/approvals/actions";
+import type { UserApprovalRow } from "@/lib/user-registrations-store";
 
-type ApprovalRow = {
-    name: string;
-    role: "Supplier" | "Buyer";
-    status: "Pending" | "Approved" | "Rejected";
-};
+export default function AdminUserApprovalTable({ initialRows }: { initialRows: UserApprovalRow[] }) {
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
 
-const initialRows: ApprovalRow[] = [
-    { name: "NeoTech Manufacturing", role: "Supplier", status: "Pending" },
-    { name: "Global Supply Co", role: "Buyer", status: "Pending" },
-    { name: "Reliance Ind.", role: "Supplier", status: "Approved" },
-    { name: "BuildMart", role: "Buyer", status: "Approved" },
-];
-
-export default function AdminUserApprovalTable() {
-    const [rows, setRows] = useState(initialRows);
-
-    function approve(name: string) {
-        setRows((prev) => prev.map((r) => (r.name === name ? { ...r, status: "Approved" } : r)));
+    function approve(id: string) {
+        startTransition(() => {
+            void (async () => {
+                await approveUserRegistration(id);
+                router.refresh();
+            })();
+        });
     }
 
-    function reject(name: string) {
-        setRows((prev) => prev.map((r) => (r.name === name ? { ...r, status: "Rejected" } : r)));
+    function reject(id: string) {
+        startTransition(() => {
+            void (async () => {
+                await rejectUserRegistration(id);
+                router.refresh();
+            })();
+        });
+    }
+
+    if (initialRows.length === 0) {
+        return (
+            <p className="text-slate-600 text-sm py-6 px-6 text-center">
+                No user registrations yet. Entries appear here when users sign up.
+            </p>
+        );
     }
 
     return (
@@ -39,8 +48,8 @@ export default function AdminUserApprovalTable() {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                    {rows.map((row) => (
-                        <tr key={row.name} className="hover:bg-slate-50 transition-colors">
+                    {initialRows.map((row) => (
+                        <tr key={row.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4 font-medium text-slate-900">{row.name}</td>
                             <td className="px-6 py-4">
                                 <span
@@ -68,15 +77,17 @@ export default function AdminUserApprovalTable() {
                                     <div className="flex gap-2 text-xs">
                                         <button
                                             type="button"
-                                            onClick={() => approve(row.name)}
-                                            className="bg-emerald-600 text-white px-3 py-1 rounded-lg hover:bg-emerald-700 font-medium transition-colors"
+                                            disabled={isPending}
+                                            onClick={() => approve(row.id)}
+                                            className="bg-emerald-600 text-white px-3 py-1 rounded-lg hover:bg-emerald-700 font-medium transition-colors disabled:opacity-50"
                                         >
                                             Approve
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => reject(row.name)}
-                                            className="bg-slate-100 text-slate-700 px-3 py-1 rounded-lg hover:bg-slate-200 font-medium transition-colors"
+                                            disabled={isPending}
+                                            onClick={() => reject(row.id)}
+                                            className="bg-slate-100 text-slate-700 px-3 py-1 rounded-lg hover:bg-slate-200 font-medium transition-colors disabled:opacity-50"
                                         >
                                             Reject
                                         </button>

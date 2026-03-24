@@ -1,5 +1,6 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
+import { FieldValue, type DocumentData } from "firebase-admin/firestore";
+import { getAdminFirestore } from "@/lib/firebase-admin";
+import { FIRESTORE } from "@/lib/firestore-collections";
 
 export type PendingSubmission = {
     id: string;
@@ -27,59 +28,97 @@ export type TestimonialsData = {
     approved: ApprovedTestimonial[];
 };
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "testimonials.json");
-
-const defaultData: TestimonialsData = {
-    pending: [],
-    approved: [
-        {
-            id: "seed-1",
-            text: "Ryovax changed how we buy in Asia. We cut wait times by about 30% and kept quality where we needed it—our margins look better too.",
-            author: "Sarah Jenkins",
-            role: "Supply Chain Director",
-            company: "Nordic Manufacturing Solutions",
-            approvedAt: new Date(0).toISOString(),
-        },
-        {
-            id: "seed-2",
-            text: "Finally we can see where our shipments are, and we trust who they connect us with. That alone saved us a ton of stress.",
-            author: "David Chen",
-            role: "Head of Buying",
-            company: "Global Builders Inc.",
-            approvedAt: new Date(0).toISOString(),
-        },
-        {
-            id: "seed-3",
-            text: "We couldn’t find solid suppliers in India until Ryovax. They know the ground there and still held everything to the standard we expect.",
-            author: "Elena Rodriguez",
-            role: "Operations Manager",
-            company: "HealthCore Pharma",
-            approvedAt: new Date(0).toISOString(),
-        },
-    ],
+const col = () => {
+    const db = getAdminFirestore();
+    if (!db) return null;
+    return db.collection(FIRESTORE.testimonialSubmissions);
 };
 
-async function ensureFile(): Promise<TestimonialsData> {
-    try {
-        const raw = await readFile(DATA_FILE, "utf-8");
-        const parsed = JSON.parse(raw) as TestimonialsData;
-        if (!Array.isArray(parsed.pending) || !Array.isArray(parsed.approved)) {
-            return { ...defaultData };
-        }
-        return parsed;
-    } catch {
-        return { ...defaultData, pending: [], approved: [...defaultData.approved] };
-    }
+function docToPending(id: string, data: DocumentData): PendingSubmission {
+    return {
+        id,
+        reviewType: data.reviewType === "negative" ? "negative" : "positive",
+        name: String(data.name ?? ""),
+        email: String(data.email ?? ""),
+        company: String(data.company ?? ""),
+        message: String(data.message ?? ""),
+        rating: data.rating != null ? String(data.rating) : undefined,
+        issueType: data.issueType != null ? String(data.issueType) : undefined,
+        submittedAt: String(data.submittedAt ?? new Date().toISOString()),
+    };
+}
+
+function docToApproved(id: string, data: DocumentData): ApprovedTestimonial {
+    return {
+        id,
+        text: String(data.text ?? data.message ?? ""),
+        author: String(data.author ?? data.name ?? ""),
+        role: String(data.role ?? ""),
+        company: String(data.company ?? ""),
+        approvedAt: String(data.approvedAt ?? new Date().toISOString()),
+    };
 }
 
 export async function readTestimonials(): Promise<TestimonialsData> {
-    return ensureFile();
+    const c = col();
+    if (!c) return { pending: [], approved: [] };
+    const [pendingSnap, approvedSnap] = await Promise.all([
+        c.where("status", "==", "pending").get(),
+        c.where("status", "==", "approved").get(),
+    ]);
+
+    const pending: PendingSubmission[] = [];
+    pendingSnap.forEach((doc) => {
+        pending.push(docToPending(doc.id, doc.data()));
+    });
+
+    const approved: ApprovedTestimonial[] = [];
+    approvedSnap.forEach((doc) => {
+        approved.push(docToApproved(doc.id, doc.data()));
+    });
+
+    approved.sort((a, b) => new Date(b.approvedAt).getTime() - new Date(a.approvedAt).getTime());
+    pending.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+
+    return { pending, approved };
 }
 
+/** @deprecated Prefer addPendingSubmission; kept for any legacy callers */
 export async function writeTestimonials(data: TestimonialsData): Promise<void> {
-    await mkdir(DATA_DIR, { recursive: true });
-    await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
+    const db = getAdminFirestore();
+    const c = col();
+    if (!db || !c) throw new Error("Firebase is not configured");
+    const batch = db.batch();
+    const existing = await c.get();
+    existing.forEach((doc) => batch.delete(doc.ref));
+
+    for (const p of data.pending) {
+        batch.set(c.doc(p.id), {
+            status: "pending",
+            reviewType: p.reviewType,
+            name: p.name,
+            email: p.email,
+            company: p.company,
+            message: p.message,
+            rating: p.rating ?? null,
+            issueType: p.issueType ?? null,
+            submittedAt: p.submittedAt,
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    }
+    for (const a of data.approved) {
+        batch.set(c.doc(a.id), {
+            status: "approved",
+            text: a.text,
+            author: a.author,
+            role: a.role,
+            company: a.company,
+            approvedAt: a.approvedAt,
+            submittedAt: a.approvedAt,
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    }
+    await batch.commit();
 }
 
 export function newId(): string {
@@ -101,4 +140,62 @@ export function pendingToApproved(p: PendingSubmission): ApprovedTestimonial {
         company: p.company,
         approvedAt: new Date().toISOString(),
     };
+}
+
+export async function addPendingSubmission(p: PendingSubmission): Promise<void> {
+    const c = col();
+    if (!c) throw new Error("Firebase is not configured");
+    await c
+        .doc(p.id)
+        .set({
+            status: "pending",
+            reviewType: p.reviewType,
+            name: p.name,
+            email: p.email,
+            company: p.company,
+            message: p.message,
+            rating: p.rating ?? null,
+            issueType: p.issueType ?? null,
+            submittedAt: p.submittedAt,
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+}
+
+export async function approvePendingById(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+    const c = col();
+    if (!c) return { ok: false, error: "Firebase is not configured" };
+    const ref = c.doc(id);
+    const snap = await ref.get();
+    if (!snap.exists) return { ok: false, error: "Not found" };
+    const data = snap.data()!;
+    if (data.status !== "pending") return { ok: false, error: "Not pending" };
+    const pending = docToPending(id, data);
+    const approved = pendingToApproved(pending);
+    await ref.set(
+        {
+            status: "approved",
+            text: approved.text,
+            author: approved.author,
+            role: approved.role,
+            company: approved.company,
+            approvedAt: approved.approvedAt,
+            submittedAt: pending.submittedAt,
+            reviewType: pending.reviewType,
+            updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: false },
+    );
+    return { ok: true };
+}
+
+export async function deletePendingById(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+    const c = col();
+    if (!c) return { ok: false, error: "Firebase is not configured" };
+    const ref = c.doc(id);
+    const snap = await ref.get();
+    if (!snap.exists) return { ok: false, error: "Not found" };
+    const data = snap.data()!;
+    if (data.status !== "pending") return { ok: false, error: "Not pending" };
+    await ref.delete();
+    return { ok: true };
 }
