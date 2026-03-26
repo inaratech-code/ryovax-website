@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { Users, FileText, CheckCircle, Flag, Activity, ArrowRight } from "lucide-react";
 import AdminUserApprovalTable from "@/components/admin/AdminUserApprovalTable";
-import { getAdminDashboardStats } from "@/lib/admin-stats";
-import { listBuyingRequests } from "@/lib/buying-requests-store";
-import { listRecentUserRegistrations, userRegistrationToApprovalRow } from "@/lib/user-registrations-store";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -28,10 +25,17 @@ export default async function AdminDashboard() {
         pendingApprovals: 0,
         completedDeals: 0,
     };
-    let approvalRows: ReturnType<typeof userRegistrationToApprovalRow>[] = [];
-    let rfqs: Awaited<ReturnType<typeof listBuyingRequests>> = [];
+    let approvalRows: Array<{ id: string; name: string; role: "Supplier" | "Buyer"; status: "Pending" | "Approved" | "Rejected" }> = [];
+    let rfqs: Array<{ id: string; buyerDisplay: string; status: string; createdAt: string }> = [];
 
     try {
+        const [{ getAdminDashboardStats }, { listRecentUserRegistrations, userRegistrationToApprovalRow }, { listBuyingRequests }] =
+            await Promise.all([
+                import("@/lib/admin-stats"),
+                import("@/lib/user-registrations-store"),
+                import("@/lib/buying-requests-store"),
+            ]);
+
         const [statsResult, approvalUsers, rfqsResult] = await Promise.all([
             getAdminDashboardStats(),
             listRecentUserRegistrations(8),
