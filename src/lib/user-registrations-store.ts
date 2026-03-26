@@ -55,7 +55,12 @@ function docToUser(id: string, data: Record<string, unknown>): UserRegistration 
 export async function listUserRegistrations(): Promise<UserRegistration[]> {
     const c = col();
     if (!c) return [];
-    const snap = await c.get();
+    let snap;
+    try {
+        snap = await c.get();
+    } catch {
+        return [];
+    }
     const out: UserRegistration[] = [];
     snap.forEach((doc) => out.push(docToUser(doc.id, doc.data() as Record<string, unknown>)));
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -74,27 +79,44 @@ export async function setUserRegistrationStatus(
     const c = col();
     if (!c) return { ok: false, error: "Firebase is not configured" };
     const ref = c.doc(id);
-    const snap = await ref.get();
+    let snap;
+    try {
+        snap = await ref.get();
+    } catch {
+        return { ok: false, error: "Could not update status right now." };
+    }
     if (!snap.exists) return { ok: false, error: "Not found" };
-    await ref.update({
-        status,
-        updatedAt: FieldValue.serverTimestamp(),
-    });
+    try {
+        await ref.update({
+            status,
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    } catch {
+        return { ok: false, error: "Could not update status right now." };
+    }
     return { ok: true };
 }
 
 export async function countUserRegistrations(): Promise<number> {
     const c = col();
     if (!c) return 0;
-    const snap = await c.count().get();
-    return snap.data().count;
+    try {
+        const snap = await c.count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
 }
 
 export async function countPendingUserRegistrations(): Promise<number> {
     const c = col();
     if (!c) return 0;
-    const snap = await c.where("status", "==", "pending").count().get();
-    return snap.data().count;
+    try {
+        const snap = await c.where("status", "==", "pending").count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
 }
 
 /** UI row for admin approval tables */
@@ -125,7 +147,12 @@ function normalizeEmail(email: string): string {
 export async function getRegistrationByEmailForAuth(email: string): Promise<AuthUserRegistration | null> {
     const c = col();
     if (!c) return null;
-    const q = await c.where("email", "==", normalizeEmail(email)).limit(1).get();
+    let q;
+    try {
+        q = await c.where("email", "==", normalizeEmail(email)).limit(1).get();
+    } catch {
+        return null;
+    }
     if (q.empty) return null;
     const doc = q.docs[0]!;
     const data = doc.data() as Record<string, unknown>;
@@ -171,7 +198,9 @@ export async function createPendingRegistration(
         status: "pending",
         passwordHash: input.passwordHash,
         createdAt: FieldValue.serverTimestamp(),
-    });
+    }).catch(() => null);
+
+    if (!ref) return { ok: false, error: "Could not create registration right now." };
 
     return { ok: true, id: ref.id };
 }

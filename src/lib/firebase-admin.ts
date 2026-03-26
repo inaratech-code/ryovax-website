@@ -5,8 +5,12 @@ let cachedDb: Firestore | undefined;
 
 export function isFirebaseConfigured(): boolean {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) return true;
-    // Keep fallback for local environments using ADC file credentials.
-    return !!process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
+    // Local dev: ADC file path. Production serverless (e.g. Cloudflare) has no key file — use FIREBASE_SERVICE_ACCOUNT_JSON secret.
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim()) return false;
+    if (process.env.NODE_ENV === "production") {
+        return process.env.FIREBASE_ALLOW_GOOGLE_APPLICATION_CREDENTIALS_IN_PRODUCTION === "true";
+    }
+    return true;
 }
 
 /**

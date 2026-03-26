@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Users, FileText, CheckCircle, Flag, Activity, ArrowRight } from "lucide-react";
 import AdminUserApprovalTable from "@/components/admin/AdminUserApprovalTable";
+import { isFirebaseConfigured } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -19,6 +20,7 @@ function formatRequestDate(iso: string) {
 
 export default async function AdminDashboard() {
     let loadError = "";
+    let configHint = "";
     let stats = {
         totalUsers: 0,
         totalBuyingRequests: 0,
@@ -27,6 +29,14 @@ export default async function AdminDashboard() {
     };
     let approvalRows: Array<{ id: string; name: string; role: "Supplier" | "Buyer"; status: "Pending" | "Approved" | "Rejected" }> = [];
     let rfqs: Array<{ id: string; buyerDisplay: string; status: string; createdAt: string }> = [];
+
+    const firebaseReady = isFirebaseConfigured();
+    if (!firebaseReady) {
+        configHint =
+            process.env.NODE_ENV === "production"
+                ? "Firestore admin is off until you set the FIREBASE_SERVICE_ACCOUNT_JSON secret (Cloudflare: Workers/Pages → Settings → Variables and secrets) and redeploy. Local dev can use GOOGLE_APPLICATION_CREDENTIALS pointing at your service account file."
+                : "Add FIREBASE_SERVICE_ACCOUNT_JSON (single-line JSON) or GOOGLE_APPLICATION_CREDENTIALS (path to the service account .json) in .env.local.";
+    }
 
     try {
         const [{ getAdminDashboardStats }, { listRecentUserRegistrations, userRegistrationToApprovalRow }, { listBuyingRequests }] =
@@ -46,11 +56,16 @@ export default async function AdminDashboard() {
         rfqs = rfqsResult;
     } catch {
         loadError =
-            "Admin data could not be loaded. Check Cloudflare runtime secrets (especially FIREBASE_SERVICE_ACCOUNT_JSON) and redeploy.";
+            "Admin data could not be loaded. If this is Cloudflare, add FIREBASE_SERVICE_ACCOUNT_JSON as an encrypted secret, confirm the JSON is valid, and redeploy.";
     }
 
     return (
         <div className="space-y-8">
+            {configHint ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
+                    {configHint}
+                </div>
+            ) : null}
             {loadError ? (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
                     {loadError}

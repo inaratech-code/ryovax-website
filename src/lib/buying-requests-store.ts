@@ -45,7 +45,12 @@ function docToRequest(id: string, data: Record<string, unknown>): BuyingRequest 
 export async function listBuyingRequests(limit?: number): Promise<BuyingRequest[]> {
     const c = col();
     if (!c) return [];
-    const snap = await c.get();
+    let snap;
+    try {
+        snap = await c.get();
+    } catch {
+        return [];
+    }
     const out: BuyingRequest[] = [];
     snap.forEach((doc) => out.push(docToRequest(doc.id, doc.data() as Record<string, unknown>)));
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -61,8 +66,12 @@ export async function listBuyingRequestsForBuyer(buyerRegId: string, limit?: num
 export async function countBuyingRequests(): Promise<number> {
     const c = col();
     if (!c) return 0;
-    const snap = await c.count().get();
-    return snap.data().count;
+    try {
+        const snap = await c.count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
 }
 
 export async function countBuyingRequestsForBuyer(buyerRegId: string): Promise<number> {
@@ -73,7 +82,12 @@ export async function countBuyingRequestsForBuyer(buyerRegId: string): Promise<n
 export async function countCompletedDeals(): Promise<number> {
     const c = col();
     if (!c) return 0;
-    const snap = await c.get();
+    let snap;
+    try {
+        snap = await c.get();
+    } catch {
+        return 0;
+    }
     return snap.docs.filter((d) => ["Completed", "Closed"].includes(String(d.data().status))).length;
 }
 
