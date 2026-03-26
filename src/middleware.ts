@@ -11,13 +11,15 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (pathname.startsWith("/admin")) {
+        const passwordAuth = !!process.env.ADMIN_PASSWORD?.trim();
         const allowPanel =
-            process.env.NODE_ENV === "development" || process.env.ADMIN_PANEL_ENABLED === "true";
+            process.env.NODE_ENV === "development" ||
+            process.env.ADMIN_PANEL_ENABLED === "true" ||
+            passwordAuth;
         if (!allowPanel) {
             return NextResponse.redirect(new URL("/", request.url));
         }
 
-        const passwordAuth = !!process.env.ADMIN_PASSWORD?.trim();
         if (!passwordAuth) {
             return NextResponse.next();
         }
