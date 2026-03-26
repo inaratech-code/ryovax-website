@@ -21,15 +21,38 @@ function formatRequestDate(iso: string) {
 }
 
 export default async function AdminDashboard() {
-    const [stats, approvalUsers, rfqs] = await Promise.all([
-        getAdminDashboardStats(),
-        listRecentUserRegistrations(8),
-        listBuyingRequests(8),
-    ]);
-    const approvalRows = approvalUsers.map(userRegistrationToApprovalRow);
+    let loadError = "";
+    let stats = {
+        totalUsers: 0,
+        totalBuyingRequests: 0,
+        pendingApprovals: 0,
+        completedDeals: 0,
+    };
+    let approvalRows: ReturnType<typeof userRegistrationToApprovalRow>[] = [];
+    let rfqs: Awaited<ReturnType<typeof listBuyingRequests>> = [];
+
+    try {
+        const [statsResult, approvalUsers, rfqsResult] = await Promise.all([
+            getAdminDashboardStats(),
+            listRecentUserRegistrations(8),
+            listBuyingRequests(8),
+        ]);
+        stats = statsResult;
+        approvalRows = approvalUsers.map(userRegistrationToApprovalRow);
+        rfqs = rfqsResult;
+    } catch {
+        loadError =
+            "Admin data could not be loaded. Check Cloudflare runtime secrets (especially FIREBASE_SERVICE_ACCOUNT_JSON) and redeploy.";
+    }
 
     return (
         <div className="space-y-8">
+            {loadError ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
+                    {loadError}
+                </div>
+            ) : null}
+
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Admin Overview</h1>
             </div>
