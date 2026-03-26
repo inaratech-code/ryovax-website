@@ -1,7 +1,13 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
-import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { initializeFirestore, type Firestore } from "firebase-admin/firestore";
 
 let cachedDb: Firestore | undefined;
+/** Last Firestore init failure (for diagnostics; no secrets). */
+let lastFirestoreInitError: string | null = null;
+
+export function getLastFirestoreInitError(): string | null {
+    return lastFirestoreInitError;
+}
 
 function isServiceAccountObject(o: Record<string, unknown>): boolean {
     return (
@@ -58,6 +64,7 @@ export function getAdminFirestore(): Firestore | null {
     if (cachedDb) return cachedDb;
 
     const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
+    lastFirestoreInitError = null;
     try {
         let app: App;
         if (!getApps().length) {
@@ -72,9 +79,12 @@ export function getAdminFirestore(): Firestore | null {
             app = getApps()[0]!;
         }
 
-        cachedDb = getFirestore(app);
+        // Cloudflare Workers / edge: default gRPC stack often fails; REST avoids native gRPC deps.
+        const preferRest = process.env.FIRESTORE_PREFER_REST !== "false";
+        cachedDb = initializeFirestore(app, { preferRest });
         return cachedDb;
-    } catch {
+    } catch (e) {
+        lastFirestoreInitError = e instanceof Error ? e.message : String(e);
         // Runtime credentials/parsing issue: expose as "not configured" to callers.
         return null;
     }
