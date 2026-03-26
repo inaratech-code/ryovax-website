@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin-session";
 import { PORTAL_SESSION_COOKIE, verifyPortalSessionToken } from "@/lib/portal-session";
 
 /**
- * Admin: production requires ADMIN_PANEL_ENABLED; optional password gate.
+ * Admin auth is enforced in admin server layouts/pages.
  * Buyer/supplier: /dashboard requires approved portal session (JWT cookie).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (pathname.startsWith("/admin")) {
-        // Cloudflare edge/proxy deployments may not expose runtime env vars reliably.
-        // Admin gating is enforced in the server layouts/pages instead of here.
+        // Keep passthrough for admin routes; page-level guards handle auth.
         return NextResponse.next();
     }
 
@@ -33,8 +31,6 @@ export async function middleware(request: NextRequest) {
         if (session.role === "buyer" && isSupplierPath) {
             return NextResponse.redirect(new URL("/dashboard", request.url));
         }
-
-        return NextResponse.next();
     }
 
     return NextResponse.next();
