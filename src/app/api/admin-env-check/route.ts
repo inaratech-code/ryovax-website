@@ -27,21 +27,13 @@ export async function GET() {
     let firebaseInitOk = false;
     let firebaseInitError = "";
     try {
-        const { getAdminFirestore, getLastFirestoreInitError } = await import("@/lib/firebase-admin");
+        const { getAdminFirestore } = await import("@/lib/firebase-admin");
         const db = getAdminFirestore();
         firebaseInitOk = !!db;
-        if (!firebaseInitOk) {
-            const detail = getLastFirestoreInitError();
-            firebaseInitError = detail
-                ? truncate(detail, 400)
-                : "getAdminFirestore returned null (no captured error; check credentials and Firestore API access).";
-        }
     } catch (e) {
         firebaseInitOk = false;
-        firebaseInitError = truncate(e instanceof Error ? `${e.name}: ${e.message}` : String(e), 400);
+        firebaseInitError = e instanceof Error ? e.name : "Unknown error";
     }
-
-    const firestorePreferRest = process.env.FIRESTORE_PREFER_REST !== "false";
 
     return NextResponse.json(
         {
@@ -57,7 +49,6 @@ export async function GET() {
                 firebaseJsonParseError,
                 firebaseInitOk,
                 firebaseInitError,
-                firestorePreferRest,
                 googleCredentialsPathConfigured,
             },
         },
