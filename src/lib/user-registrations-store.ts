@@ -8,6 +8,8 @@ export type UserRegistrationStatus = "pending" | "approved" | "rejected";
 export type UserRegistration = {
     id: string;
     companyName: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
     role: UserRegistrationRole;
     status: UserRegistrationStatus;
@@ -15,22 +17,38 @@ export type UserRegistration = {
     updatedAt?: string;
 };
 
+/** Server-only auth shape (password hash never exposed to clients). */
+export type AuthUserRegistration = UserRegistration & { passwordHash: string };
+
 const col = () => {
     const db = getAdminFirestore();
     if (!db) return null;
     return db.collection(FIRESTORE.userRegistrations);
 };
 
+function formatFirestoreDate(d: unknown): string {
+    if (d != null && typeof d === "object" && "toDate" in d && typeof (d as { toDate: () => Date }).toDate === "function") {
+        try {
+            return (d as { toDate: () => Date }).toDate().toISOString();
+        } catch {
+            /* ignore */
+        }
+    }
+    return String(d ?? new Date().toISOString());
+}
+
 function docToUser(id: string, data: Record<string, unknown>): UserRegistration {
     return {
         id,
         companyName: String(data.companyName ?? ""),
+        firstName: data.firstName != null ? String(data.firstName) : undefined,
+        lastName: data.lastName != null ? String(data.lastName) : undefined,
         email: String(data.email ?? ""),
         role: data.role === "supplier" ? "supplier" : "buyer",
         status:
             data.status === "approved" ? "approved" : data.status === "rejected" ? "rejected" : "pending",
-        createdAt: String(data.createdAt ?? new Date().toISOString()),
-        updatedAt: data.updatedAt != null ? String(data.updatedAt) : undefined,
+        createdAt: formatFirestoreDate(data.createdAt),
+        updatedAt: data.updatedAt != null ? formatFirestoreDate(data.updatedAt) : undefined,
     };
 }
 
@@ -95,4 +113,65 @@ export function userRegistrationToApprovalRow(u: UserRegistration): UserApproval
         status:
             u.status === "pending" ? "Pending" : u.status === "approved" ? "Approved" : "Rejected",
     };
+}
+
+function normalizeEmail(email: string): string {
+    return email.trim().toLowerCase();
+}
+
+/**
+ * Server-only: load registration for login (includes password hash). Never send to the client.
+ */
+export async function getRegistrationByEmailForAuth(email: string): Promise<AuthUserRegistration | null> {
+    const c = col();
+    if (!c) return null;
+    const q = await c.where("email", "==", normalizeEmail(email)).limit(1).get();
+    if (q.empty) return null;
+    const doc = q.docs[0]!;
+    const data = doc.data() as Record<string, unknown>;
+    const passwordHash = String(data.passwordHash ?? "");
+    if (!passwordHash) return null;
+    const base = docToUser(doc.id, data);
+    return { ...base, passwordHash };
+}
+
+export type CreatePendingRegistrationInput = {
+    email: string;
+    companyName: string;
+    firstName: string;
+    lastName: string;
+    role: UserRegistrationRole;
+    passwordHash: string;
+};
+
+export async function createPendingRegistration(
+    input: CreatePendingRegistrationInput,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+    const c = col();
+    if (!c) {
+        return {
+            ok: false,
+            error:
+                "Registration is unavailable because Firebase Admin is not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON (recommended) or GOOGLE_APPLICATION_CREDENTIALS.",
+        };
+    }
+
+    const email = normalizeEmail(input.email);
+    const existing = await c.where("email", "==", email).limit(1).get();
+    if (!existing.empty) {
+        return { ok: false, error: "An account with this email already exists. Try signing in." };
+    }
+
+    const ref = await c.add({
+        email,
+        companyName: input.companyName.trim(),
+        firstName: input.firstName.trim(),
+        lastName: input.lastName.trim(),
+        role: input.role,
+        status: "pending",
+        passwordHash: input.passwordHash,
+        createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return { ok: true, id: ref.id };
 }

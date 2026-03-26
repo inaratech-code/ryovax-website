@@ -13,6 +13,8 @@ export type BuyingRequestStatus =
 
 export type BuyingRequest = {
     id: string;
+    /** Owner registration id (from `user_registrations`). Used to restrict buyer visibility. */
+    buyerRegId?: string;
     buyerDisplay: string;
     buyerEmail?: string;
     productName: string;
@@ -30,6 +32,7 @@ const col = () => {
 function docToRequest(id: string, data: Record<string, unknown>): BuyingRequest {
     return {
         id,
+        buyerRegId: data.buyerRegId != null ? String(data.buyerRegId) : undefined,
         buyerDisplay: String(data.buyerDisplay ?? ""),
         buyerEmail: data.buyerEmail != null ? String(data.buyerEmail) : undefined,
         productName: String(data.productName ?? ""),
@@ -49,11 +52,22 @@ export async function listBuyingRequests(limit?: number): Promise<BuyingRequest[
     return limit != null ? out.slice(0, limit) : out;
 }
 
+export async function listBuyingRequestsForBuyer(buyerRegId: string, limit?: number): Promise<BuyingRequest[]> {
+    const all = await listBuyingRequests();
+    const filtered = all.filter((r) => r.buyerRegId === buyerRegId);
+    return limit != null ? filtered.slice(0, limit) : filtered;
+}
+
 export async function countBuyingRequests(): Promise<number> {
     const c = col();
     if (!c) return 0;
     const snap = await c.count().get();
     return snap.data().count;
+}
+
+export async function countBuyingRequestsForBuyer(buyerRegId: string): Promise<number> {
+    const all = await listBuyingRequestsForBuyer(buyerRegId);
+    return all.length;
 }
 
 export async function countCompletedDeals(): Promise<number> {
@@ -63,7 +77,9 @@ export async function countCompletedDeals(): Promise<number> {
     return snap.docs.filter((d) => ["Completed", "Closed"].includes(String(d.data().status))).length;
 }
 
-export async function createBuyingRequest(input: Omit<BuyingRequest, "id" | "createdAt"> & { id?: string }) {
+export async function createBuyingRequest(
+    input: Omit<BuyingRequest, "id" | "createdAt"> & { id?: string; buyerRegId: string },
+) {
     const c = col();
     if (!c) throw new Error("Firebase is not configured");
     const id = input.id ?? `req-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -71,6 +87,7 @@ export async function createBuyingRequest(input: Omit<BuyingRequest, "id" | "cre
     await c
         .doc(id)
         .set({
+            buyerRegId: input.buyerRegId,
             buyerDisplay: input.buyerDisplay,
             buyerEmail: input.buyerEmail ?? null,
             productName: input.productName,

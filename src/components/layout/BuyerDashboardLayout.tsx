@@ -11,15 +11,25 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import DashboardAppShell from "@/components/layout/DashboardAppShell";
+import { portalLogout } from "@/app/auth/login/actions";
 
-const navItems = [
-    { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard#recent-requests", label: "Buying requests", icon: FileText },
-    { href: "/services", label: "Shipments", icon: Truck },
-    { href: "/about", label: "Network", icon: Users },
-];
+type Props = {
+    children: React.ReactNode;
+    userEmail: string;
+    companyName: string;
+    role: "buyer" | "supplier";
+};
 
-export default function BuyerDashboardLayout({ children }: { children: React.ReactNode }) {
+export default function BuyerDashboardLayout({ children, userEmail, companyName, role }: Props) {
+    const base = role === "supplier" ? "/dashboard/supplier" : "/dashboard";
+
+    const navItems = [
+        { href: base, label: "Overview", icon: LayoutDashboard },
+        { href: `${base}#recent-requests`, label: "Buying requests", icon: FileText },
+        { href: "/services", label: "Shipments", icon: Truck },
+        { href: "/about", label: "Network", icon: Users },
+    ];
+
     const sidebarFooter = (
         <>
             <Link
@@ -30,16 +40,22 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
                 Help &amp; settings
             </Link>
             <div className="mt-4 flex items-center gap-3 px-4 py-2">
-                <img
-                    src="https://i.pravatar.cc/150?img=68"
-                    alt=""
-                    className="w-9 h-9 rounded-full ring-2 ring-slate-800"
-                />
-                <div className="text-sm min-w-0">
-                    <p className="font-semibold text-white truncate">John Doe</p>
-                    <p className="text-slate-500 text-xs truncate">Logistics Co.</p>
+                <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {companyName.slice(0, 1).toUpperCase()}
+                </div>
+                <div className="text-sm min-w-0 flex-1">
+                    <p className="font-semibold text-white truncate">{companyName || userEmail}</p>
+                    <p className="text-slate-500 text-xs truncate">{userEmail}</p>
                 </div>
             </div>
+            <form action={portalLogout} className="px-4 pt-2">
+                <button
+                    type="submit"
+                    className="text-sm font-medium text-slate-400 hover:text-white transition-colors"
+                >
+                    Log out
+                </button>
+            </form>
         </>
     );
 
@@ -64,7 +80,7 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
                     <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-saffron-500 rounded-full border-2 border-white" />
                 </Link>
                 <Link
-                    href="/auth/register"
+                    href="/contact"
                     className="inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-4 sm:px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-sm whitespace-nowrap"
                 >
                     + New buying request
@@ -78,7 +94,7 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
             navItems={navItems}
             sidebarFooter={sidebarFooter}
             header={header}
-            sidebarTitle="Buyer"
+            sidebarTitle={role === "supplier" ? "Supplier" : "Buyer"}
             activeTone="dashboard"
         >
             {children}

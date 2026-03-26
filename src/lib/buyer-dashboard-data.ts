@@ -1,4 +1,4 @@
-import { listBuyingRequests } from "@/lib/buying-requests-store";
+import { listBuyingRequestsForBuyer } from "@/lib/buying-requests-store";
 import { listUserRegistrations } from "@/lib/user-registrations-store";
 
 export type BuyerDashboardCounts = {
@@ -8,8 +8,8 @@ export type BuyerDashboardCounts = {
     completedOrders: number;
 };
 
-export async function getBuyerDashboardCounts(): Promise<BuyerDashboardCounts> {
-    const requests = await listBuyingRequests(2000);
+export async function getBuyerDashboardCounts(buyerRegId: string): Promise<BuyerDashboardCounts> {
+    const requests = await listBuyingRequestsForBuyer(buyerRegId, 2000);
     const openBuyingRequests = requests.filter((r) =>
         ["Active", "Pending"].includes(String(r.status)),
     ).length;

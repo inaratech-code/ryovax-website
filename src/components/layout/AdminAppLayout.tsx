@@ -20,7 +20,8 @@ import { adminLogout } from "@/app/admin/login/actions";
 const navItems = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/admin/analytics", label: "Web analytics", icon: Activity },
-    { href: "/admin/users", label: "Manage Users", icon: Users },
+    { href: "/admin/buyers", label: "Buyers", icon: Users },
+    { href: "/admin/suppliers", label: "Suppliers", icon: Users },
     { href: "/admin/rfqs", label: "All requests", icon: FileText },
     { href: "/admin/appointments", label: "Appointments", icon: CalendarClock },
     { href: "/admin/approvals", label: "Approvals", icon: Flag },

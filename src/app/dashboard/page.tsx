@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Package, Clock, ShieldCheck, CheckCircle2 } from "lucide-react";
-import { countBuyingRequests, listBuyingRequests } from "@/lib/buying-requests-store";
+import { countBuyingRequestsForBuyer, listBuyingRequestsForBuyer } from "@/lib/buying-requests-store";
 import { getBuyerDashboardCounts } from "@/lib/buyer-dashboard-data";
+import { getPortalSessionFromCookies } from "@/lib/portal-session-server";
 
 function formatDate(iso: string) {
     try {
@@ -16,10 +17,20 @@ function formatDate(iso: string) {
 }
 
 export default async function DashboardOverview() {
+    const session = await getPortalSessionFromCookies();
+    // Layout already redirects unauthenticated users, but keep this page safe too.
+    if (!session) {
+        return (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center text-slate-600">
+                Please sign in to view your dashboard.
+            </div>
+        );
+    }
+
     const [counts, recentRequests, totalRfqs] = await Promise.all([
-        getBuyerDashboardCounts(),
-        listBuyingRequests(6),
-        countBuyingRequests(),
+        getBuyerDashboardCounts(session.regId),
+        listBuyingRequestsForBuyer(session.regId, 6),
+        countBuyingRequestsForBuyer(session.regId),
     ]);
 
     return (
