@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarClock, Globe2 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
@@ -105,18 +104,10 @@ export default function Hero() {
                             {[1, 2, 3, 4].map((i) => (
                                 <div
                                     key={i}
-                                    className="relative w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shrink-0"
+                                    className="relative w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-xs font-bold text-slate-700 shrink-0"
                                     style={{ zIndex: 10 - i }}
                                 >
-                                    <Image
-                                        src={`https://i.pravatar.cc/100?img=${i + 10}`}
-                                        alt=""
-                                        width={40}
-                                        height={40}
-                                        className="object-cover"
-                                        loading="lazy"
-                                        sizes="40px"
-                                    />
+                                    {String.fromCharCode(64 + i)}
                                 </div>
                             ))}
                         </div>

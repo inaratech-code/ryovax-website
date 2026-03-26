@@ -31,6 +31,8 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [headerHidden, setHeaderHidden] = useState(false);
     const lastScrollY = useRef(0);
+    const rafId = useRef<number | null>(null);
+    const pendingScrollY = useRef<number>(0);
 
     useBodyScrollLock(mobileMenuOpen);
 
@@ -45,12 +47,13 @@ export default function Navbar() {
     }, []);
 
     useEffect(() => {
-        const handleScroll = () => {
-            const y = window.scrollY;
-            setIsScrolled(y > 20);
+        const applyScroll = () => {
+            rafId.current = null;
+            const y = pendingScrollY.current;
+            setIsScrolled((prev) => (prev === (y > 20) ? prev : y > 20));
 
             if (mobileMenuOpen) {
-                setHeaderHidden(false);
+                setHeaderHidden((prev) => (prev ? false : prev));
                 lastScrollY.current = y;
                 return;
             }
@@ -59,18 +62,29 @@ export default function Navbar() {
             const delta = y - prev;
 
             if (y < 56) {
-                setHeaderHidden(false);
+                setHeaderHidden((p) => (p ? false : p));
             } else if (delta > 6 && y > 96) {
-                setHeaderHidden(true);
+                setHeaderHidden((p) => (p ? p : true));
             } else if (delta < -6) {
-                setHeaderHidden(false);
+                setHeaderHidden((p) => (p ? false : p));
             }
 
             lastScrollY.current = y;
         };
 
+        const handleScroll = () => {
+            pendingScrollY.current = window.scrollY;
+            if (rafId.current != null) return;
+            rafId.current = window.requestAnimationFrame(applyScroll);
+        };
+
         window.addEventListener("scroll", handleScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleScroll);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            if (rafId.current != null) {
+                window.cancelAnimationFrame(rafId.current);
+            }
+        };
     }, [mobileMenuOpen]);
 
     return (

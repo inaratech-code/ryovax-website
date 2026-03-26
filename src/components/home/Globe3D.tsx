@@ -28,7 +28,7 @@ function RotatingGlobe() {
     // Generate some trade lines (curved)
     const tradeLines = useMemo(() => {
         const lines = [];
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 12; i++) {
             // Simple random points on sphere
             const phi1 = Math.acos(-1 + (2 * Math.random()));
             const theta1 = Math.sqrt(Math.PI * 100) * phi1;
@@ -43,7 +43,7 @@ function RotatingGlobe() {
             midPoint.normalize().multiplyScalar(2.3);
 
             const curve = new THREE.QuadraticBezierCurve3(p1, midPoint, p2);
-            lines.push(curve.getPoints(20));
+            lines.push(curve.getPoints(12));
         }
         return lines;
     }, []);
@@ -51,7 +51,7 @@ function RotatingGlobe() {
     return (
         <group ref={groupRef}>
             {/* The main earth sphere */}
-            <Sphere args={[2, 64, 64]}>
+            <Sphere args={[2, 48, 48]}>
                 <meshStandardMaterial
                     color="#1e3a8a"
                     transparent
@@ -63,7 +63,7 @@ function RotatingGlobe() {
             </Sphere>
 
             {/* Slightly larger sphere for glow / atmosphere */}
-            <Sphere args={[2.05, 32, 32]}>
+            <Sphere args={[2.05, 24, 24]}>
                 <meshBasicMaterial color="#3b82f6" transparent opacity={0.1} />
             </Sphere>
 
@@ -101,9 +101,18 @@ export default function Globe3D() {
             <Canvas
                 camera={{ position: [0, 0, 5.5], fov: 45 }}
                 dpr={[1, 1.5]}
+                gl={{ powerPreference: "high-performance", antialias: false }}
             >
                 <RotatingGlobe />
-                <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 1.5} minPolarAngle={Math.PI / 3} />
+                <OrbitControls
+                    enableZoom={false}
+                    enablePan={false}
+                    enableDamping={true}
+                    dampingFactor={0.08}
+                    rotateSpeed={0.6}
+                    maxPolarAngle={Math.PI / 1.5}
+                    minPolarAngle={Math.PI / 3}
+                />
                 <Preload all />
             </Canvas>
         </div>
