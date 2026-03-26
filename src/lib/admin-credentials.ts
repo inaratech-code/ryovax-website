@@ -1,5 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 
+/** Server actions only — do not import from Edge-routed UI unless you need password verification. */
+
 function padToBuffer(s: string): Buffer {
     const buf = Buffer.alloc(512, 0);
     const src = Buffer.from(s, "utf8");
@@ -9,10 +11,6 @@ function padToBuffer(s: string): Buffer {
 
 function safeEqual(a: string, b: string): boolean {
     return timingSafeEqual(padToBuffer(a), padToBuffer(b));
-}
-
-export function isAdminPasswordAuthEnabled(): boolean {
-    return !!process.env.ADMIN_PASSWORD?.trim();
 }
 
 /**

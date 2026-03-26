@@ -1,4 +1,4 @@
-import { isAdminPasswordAuthEnabled } from "@/lib/admin-credentials";
+import { isAdminPasswordAuthEnabled } from "@/lib/admin-auth-flags";
 import AdminLoginSetupHint from "./admin-login-setup-hint";
 import AdminLoginForm from "./login-form";
 
