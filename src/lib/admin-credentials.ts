@@ -1,16 +1,26 @@
-import { timingSafeEqual } from "node:crypto";
-
-/** Server actions only — do not import from Edge-routed UI unless you need password verification. */
-
-function padToBuffer(s: string): Buffer {
-    const buf = Buffer.alloc(512, 0);
-    const src = Buffer.from(s, "utf8");
-    src.copy(buf, 0, 0, Math.min(511, src.length));
-    return buf;
-}
-
+/**
+ * Worker-safe constant-time-ish string compare.
+ *
+ * We avoid Node-only APIs (`node:crypto`, `Buffer`) because admin auth can run
+ * on Cloudflare Workers via OpenNext.
+ */
 function safeEqual(a: string, b: string): boolean {
-    return timingSafeEqual(padToBuffer(a), padToBuffer(b));
+    const enc = new TextEncoder();
+    const aBytes = enc.encode(a);
+    const bBytes = enc.encode(b);
+
+    const len = 512;
+    const aa = new Uint8Array(len);
+    const bb = new Uint8Array(len);
+
+    aa.set(aBytes.subarray(0, len - 1));
+    bb.set(bBytes.subarray(0, len - 1));
+
+    let diff = 0;
+    for (let i = 0; i < len; i++) {
+        diff |= aa[i] ^ bb[i];
+    }
+    return diff === 0;
 }
 
 /**
