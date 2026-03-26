@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
-import { isFirebaseConfigured } from "@/lib/firebase-admin";
-import {
-    addPendingSubmission,
-    newId,
-    readTestimonials,
-    type PendingSubmission,
-} from "@/lib/testimonials-store";
 
 export async function GET() {
-    const data = await readTestimonials();
-    const approved = [...data.approved].sort(
-        (a, b) => new Date(b.approvedAt).getTime() - new Date(a.approvedAt).getTime(),
-    );
-    return NextResponse.json({ testimonials: approved });
+    try {
+        const { readTestimonials } = await import("@/lib/testimonials-store");
+        const data = await readTestimonials();
+        const approved = [...data.approved].sort(
+            (a, b) => new Date(b.approvedAt).getTime() - new Date(a.approvedAt).getTime(),
+        );
+        return NextResponse.json({ testimonials: approved });
+    } catch {
+        // Public site should remain usable even when backend runtime/secrets are unavailable.
+        return NextResponse.json({ testimonials: [] });
+    }
 }
 
 export async function POST(req: Request) {
@@ -33,15 +32,18 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (!isFirebaseConfigured()) {
-        return NextResponse.json(
-            { error: "Server is not configured for submissions (Firebase)." },
-            { status: 503 },
-        );
-    }
-
-    const submission: PendingSubmission = {
-        id: newId(),
+    const submission: {
+        id: string;
+        reviewType: "positive" | "negative";
+        name: string;
+        email: string;
+        company: string;
+        message: string;
+        submittedAt: string;
+        rating?: string;
+        issueType?: string;
+    } = {
+        id: `pov-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
         reviewType,
         name,
         email,
@@ -58,7 +60,19 @@ export async function POST(req: Request) {
         submission.issueType = issueType;
     }
 
-    await addPendingSubmission(submission);
+    try {
+        const { isFirebaseConfigured } = await import("@/lib/firebase-admin");
+        if (!isFirebaseConfigured()) {
+            return NextResponse.json(
+                { error: "Server is not configured for submissions (Firebase)." },
+                { status: 503 },
+            );
+        }
+        const { addPendingSubmission } = await import("@/lib/testimonials-store");
+        await addPendingSubmission(submission);
+    } catch {
+        return NextResponse.json({ error: "Could not submit testimonial right now." }, { status: 503 });
+    }
 
     return NextResponse.json({ ok: true, id: submission.id });
 }
