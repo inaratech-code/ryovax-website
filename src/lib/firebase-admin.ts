@@ -1,29 +1,12 @@
-import { existsSync } from "node:fs";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
 let cachedDb: Firestore | undefined;
 
-/**
- * Set `FIREBASE_USE_GOOGLE_CREDENTIALS_FILE=false` in `.env.local` if you only use
- * `FIREBASE_SERVICE_ACCOUNT_JSON` but still have `GOOGLE_APPLICATION_CREDENTIALS` set (e.g. globally on Windows).
- */
-function hasUsableGoogleApplicationCredentials(): boolean {
-    const optOut = process.env.FIREBASE_USE_GOOGLE_CREDENTIALS_FILE?.trim().toLowerCase();
-    if (optOut === "false" || optOut === "0") return false;
-
-    const p = process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
-    if (!p) return false;
-    try {
-        return existsSync(p);
-    } catch {
-        return false;
-    }
-}
-
 export function isFirebaseConfigured(): boolean {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) return true;
-    return hasUsableGoogleApplicationCredentials();
+    // Keep fallback for local environments using ADC file credentials.
+    return !!process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
 }
 
 /**
@@ -35,17 +18,22 @@ export function getAdminFirestore(): Firestore | null {
     if (cachedDb) return cachedDb;
 
     const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
-    let app: App;
-    if (!getApps().length) {
-        if (json) {
-            app = initializeApp({ credential: cert(JSON.parse(json)) });
+    try {
+        let app: App;
+        if (!getApps().length) {
+            if (json) {
+                app = initializeApp({ credential: cert(JSON.parse(json)) });
+            } else {
+                app = initializeApp();
+            }
         } else {
-            app = initializeApp();
+            app = getApps()[0]!;
         }
-    } else {
-        app = getApps()[0]!;
-    }
 
-    cachedDb = getFirestore(app);
-    return cachedDb;
+        cachedDb = getFirestore(app);
+        return cachedDb;
+    } catch {
+        // Runtime credentials/parsing issue: expose as "not configured" to callers.
+        return null;
+    }
 }
