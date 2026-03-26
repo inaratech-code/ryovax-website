@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function truncate(s: string, max: number): string {
+    if (s.length <= max) return s;
+    return `${s.slice(0, max)}…`;
+}
+
 export async function GET() {
     const adminPanelEnabled = process.env.ADMIN_PANEL_ENABLED?.trim() === "true";
     const adminPasswordConfigured = !!process.env.ADMIN_PASSWORD?.trim();
@@ -25,12 +30,16 @@ export async function GET() {
     let firebaseInitOk = false;
     let firebaseInitError = "";
     try {
-        const { getAdminFirestore } = await import("@/lib/firebase-admin");
+        const { getAdminFirestore, getLastFirebaseAdminInitError } = await import("@/lib/firebase-admin");
         const db = getAdminFirestore();
         firebaseInitOk = !!db;
+        if (!firebaseInitOk) {
+            const detail = getLastFirebaseAdminInitError();
+            firebaseInitError = detail ? truncate(detail, 500) : "getAdminFirestore returned null";
+        }
     } catch (e) {
         firebaseInitOk = false;
-        firebaseInitError = e instanceof Error ? e.name : "Unknown error";
+        firebaseInitError = truncate(e instanceof Error ? `${e.name}: ${e.message}` : String(e), 500);
     }
 
     return NextResponse.json(
@@ -47,6 +56,7 @@ export async function GET() {
                 firebaseJsonParseError,
                 firebaseInitOk,
                 firebaseInitError,
+                firestorePreferRest: process.env.FIRESTORE_PREFER_REST !== "false",
                 googleCredentialsPathConfigured,
             },
         },

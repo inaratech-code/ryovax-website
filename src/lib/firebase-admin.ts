@@ -1,7 +1,12 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
-import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { initializeFirestore, type Firestore } from "firebase-admin/firestore";
 
 let cachedDb: Firestore | undefined;
+let lastInitError: string | null = null;
+
+export function getLastFirebaseAdminInitError(): string | null {
+    return lastInitError;
+}
 
 export function isFirebaseConfigured(): boolean {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) return true;
@@ -22,6 +27,7 @@ export function getAdminFirestore(): Firestore | null {
     if (cachedDb) return cachedDb;
 
     const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
+    lastInitError = null;
     try {
         let app: App;
         if (!getApps().length) {
@@ -34,9 +40,12 @@ export function getAdminFirestore(): Firestore | null {
             app = getApps()[0]!;
         }
 
-        cachedDb = getFirestore(app);
+        // Cloudflare Workers/OpenNext: gRPC often fails; REST transport is safer.
+        const preferRest = process.env.FIRESTORE_PREFER_REST !== "false";
+        cachedDb = initializeFirestore(app, { preferRest });
         return cachedDb;
-    } catch {
+    } catch (e) {
+        lastInitError = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
         // Runtime credentials/parsing issue: expose as "not configured" to callers.
         return null;
     }
