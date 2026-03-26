@@ -1,9 +1,11 @@
 import { Building2 } from "lucide-react";
 import AdminUserDirectoryTable from "@/components/admin/AdminUserDirectoryTable";
-import { setBuyerActive } from "./actions";
 
 export default async function AdminBuyersPage() {
     let loadError = "";
+    let setActive:
+        | ((id: string, active: boolean) => Promise<unknown>)
+        | undefined;
     let rows: Array<{
         id: string;
         companyName: string;
@@ -17,11 +19,18 @@ export default async function AdminBuyersPage() {
     }> = [];
 
     try {
-        const { listUserRegistrations } = await import("@/lib/user-registrations-store");
+        const [
+            { listUserRegistrations },
+            { setBuyerActive },
+        ] = await Promise.all([
+            import("@/lib/user-registrations-store"),
+            import("./actions"),
+        ]);
         const all = await listUserRegistrations();
         rows = all
             .filter((u) => u.role === "buyer")
             .map((u) => ({ ...u, role: "buyer" as const }));
+        setActive = setBuyerActive;
     } catch {
         loadError =
             "Buyers data could not be loaded. Check Firebase admin runtime secrets and redeploy.";
@@ -41,7 +50,7 @@ export default async function AdminBuyersPage() {
             </h1>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <AdminUserDirectoryTable rows={rows} setActive={setBuyerActive} />
+                <AdminUserDirectoryTable rows={rows} setActive={setActive} />
             </div>
         </div>
     );

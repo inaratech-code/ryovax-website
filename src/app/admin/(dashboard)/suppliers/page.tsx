@@ -1,9 +1,11 @@
 import { Factory } from "lucide-react";
 import AdminUserDirectoryTable from "@/components/admin/AdminUserDirectoryTable";
-import { setSupplierActive } from "./actions";
 
 export default async function AdminSuppliersPage() {
     let loadError = "";
+    let setActive:
+        | ((id: string, active: boolean) => Promise<unknown>)
+        | undefined;
     let rows: Array<{
         id: string;
         companyName: string;
@@ -17,11 +19,18 @@ export default async function AdminSuppliersPage() {
     }> = [];
 
     try {
-        const { listUserRegistrations } = await import("@/lib/user-registrations-store");
+        const [
+            { listUserRegistrations },
+            { setSupplierActive },
+        ] = await Promise.all([
+            import("@/lib/user-registrations-store"),
+            import("./actions"),
+        ]);
         const all = await listUserRegistrations();
         rows = all
             .filter((u) => u.role === "supplier")
             .map((u) => ({ ...u, role: "supplier" as const }));
+        setActive = setSupplierActive;
     } catch {
         loadError =
             "Suppliers data could not be loaded. Check Firebase admin runtime secrets and redeploy.";
@@ -41,7 +50,7 @@ export default async function AdminSuppliersPage() {
             </h1>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <AdminUserDirectoryTable rows={rows} setActive={setSupplierActive} />
+                <AdminUserDirectoryTable rows={rows} setActive={setActive} />
             </div>
         </div>
     );

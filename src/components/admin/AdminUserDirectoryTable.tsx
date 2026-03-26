@@ -12,7 +12,7 @@ export type DirectoryRow = Pick<
 type Props = {
     rows: DirectoryRow[];
     /** Server action that toggles approved/rejected behind the scenes. */
-    setActive: (id: string, active: boolean) => Promise<unknown>;
+    setActive?: (id: string, active: boolean) => Promise<unknown>;
 };
 
 function displayName(row: DirectoryRow): string {
@@ -80,8 +80,9 @@ export default function AdminUserDirectoryTable({ rows, setActive }: Props) {
                                 <td className="px-6 py-4">
                                     <button
                                         type="button"
-                                        disabled={pending}
+                                        disabled={pending || !setActive}
                                         onClick={() => {
+                                            if (!setActive) return;
                                             startTransition(() => {
                                                 void (async () => {
                                                     await setActive(row.id, !active);
