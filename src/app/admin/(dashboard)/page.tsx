@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Users, FileText, CheckCircle, Flag } from "lucide-react";
 import AdminUserApprovalTable from "@/components/admin/AdminUserApprovalTable";
-import { isFirebaseConfigured } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -30,12 +29,19 @@ export default async function AdminDashboard() {
     let approvalRows: Array<{ id: string; name: string; role: "Supplier" | "Buyer"; status: "Pending" | "Approved" | "Rejected" }> = [];
     let rfqs: Array<{ id: string; buyerDisplay: string; status: string; createdAt: string }> = [];
 
-    const firebaseReady = isFirebaseConfigured();
-    if (!firebaseReady) {
-        configHint =
-            process.env.NODE_ENV === "production"
-                ? "Firestore admin is off until you set the FIREBASE_SERVICE_ACCOUNT_JSON secret (Cloudflare: Workers/Pages → Settings → Variables and secrets) and redeploy. Local dev can use GOOGLE_APPLICATION_CREDENTIALS pointing at your service account file."
-                : "Add FIREBASE_SERVICE_ACCOUNT_JSON (single-line JSON) or GOOGLE_APPLICATION_CREDENTIALS (path to the service account .json) in .env.local.";
+    // Important: avoid importing firebase-admin at module scope. On some edge hosts, that can throw
+    // during route evaluation even if we immediately redirect unauthenticated users.
+    try {
+        const { isFirebaseConfigured } = await import("@/lib/firebase-admin");
+        const firebaseReady = isFirebaseConfigured();
+        if (!firebaseReady) {
+            configHint =
+                process.env.NODE_ENV === "production"
+                    ? "Firestore admin is off until you set the FIREBASE_SERVICE_ACCOUNT_JSON secret (Cloudflare: Workers/Pages → Settings → Variables and secrets) and redeploy. Local dev can use GOOGLE_APPLICATION_CREDENTIALS pointing at your service account file."
+                    : "Add FIREBASE_SERVICE_ACCOUNT_JSON (single-line JSON) or GOOGLE_APPLICATION_CREDENTIALS (path to the service account .json) in .env.local.";
+        }
+    } catch {
+        // If Firebase cannot be evaluated in this runtime, don't block the page from rendering.
     }
 
     try {
