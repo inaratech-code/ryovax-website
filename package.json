@@ -9,6 +9,8 @@
     "lint": "eslint",
     "migrate:testimonials": "node scripts/migrate-testimonials-to-firestore.mjs",
     "seed:firestore": "node scripts/seed-firestore-demo.mjs",
+    "pages:build": "opennextjs-cloudflare build",
+    "pages:deploy": "wrangler deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
