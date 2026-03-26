@@ -5,6 +5,9 @@ import { getAdminDashboardStats } from "@/lib/admin-stats";
 import { listBuyingRequests } from "@/lib/buying-requests-store";
 import { listRecentUserRegistrations, userRegistrationToApprovalRow } from "@/lib/user-registrations-store";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function formatRequestDate(iso: string) {
     try {
         return new Date(iso).toLocaleDateString(undefined, {

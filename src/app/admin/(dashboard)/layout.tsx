@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin-session";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
     const allowPanel = process.env.NODE_ENV === "development" || process.env.ADMIN_PANEL_ENABLED === "true";
     if (!allowPanel) {

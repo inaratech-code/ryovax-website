@@ -2,6 +2,9 @@ import { isAdminPasswordAuthEnabled } from "@/lib/admin-credentials";
 import AdminLoginSetupHint from "./admin-login-setup-hint";
 import AdminLoginForm from "./login-form";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
     title: "Admin sign in",
     robots: { index: false, follow: false },
