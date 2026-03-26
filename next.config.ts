@@ -18,6 +18,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-// Enables `wrangler dev` compatibility in local development when needed.
-void import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev());
