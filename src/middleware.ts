@@ -3,14 +3,14 @@ import type { NextRequest } from "next/server";
 import { PORTAL_SESSION_COOKIE, verifyPortalSessionToken } from "@/lib/portal-session";
 
 /**
+ * Cloudflare/OpenNext: requires Edge Middleware (middleware.ts).
  * Admin auth is enforced in admin server layouts/pages.
  * Buyer/supplier: /dashboard requires approved portal session (JWT cookie).
  */
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (pathname.startsWith("/admin")) {
-        // Keep passthrough for admin routes; page-level guards handle auth.
         return NextResponse.next();
     }
 
@@ -39,3 +39,4 @@ export async function proxy(request: NextRequest) {
 export const config = {
     matcher: ["/admin", "/admin/:path*", "/dashboard", "/dashboard/:path*"],
 };
+
