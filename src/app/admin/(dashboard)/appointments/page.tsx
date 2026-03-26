@@ -1,14 +1,28 @@
 import { CalendarClock } from "lucide-react";
 import AdminAppointmentsPanel from "@/components/admin/AdminAppointmentsPanel";
-import { listAppointments } from "@/lib/appointments-store";
 import { getAdminDisplayTimezone } from "@/lib/appointment-time";
 
 export default async function AdminAppointmentsPage() {
-    const appointments = await listAppointments();
+    let loadError = "";
+    let appointments: any[] = [];
     const adminTimezone = getAdminDisplayTimezone();
+
+    try {
+        const { listAppointments } = await import("@/lib/appointments-store");
+        appointments = await listAppointments();
+    } catch {
+        loadError =
+            "Appointments data could not be loaded. Check Firebase admin runtime secrets and redeploy.";
+    }
 
     return (
         <div className="space-y-8">
+            {loadError ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
+                    {loadError}
+                </div>
+            ) : null}
+
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2 sm:gap-3">
                 <CalendarClock className="text-blue-700 shrink-0 w-7 h-7 sm:w-8 sm:h-8" />
                 <span>Appointments</span>

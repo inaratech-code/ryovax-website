@@ -1,15 +1,29 @@
 import { MessageSquareQuote } from "lucide-react";
 import AdminTestimonialsQueue from "@/components/admin/AdminTestimonialsQueue";
-import { readTestimonials } from "@/lib/testimonials-store";
 
 export default async function AdminTestimonialsPage() {
-    const data = await readTestimonials();
-    const pending = [...data.pending].sort(
-        (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
-    );
+    let loadError = "";
+    let pending: any[] = [];
+
+    try {
+        const { readTestimonials } = await import("@/lib/testimonials-store");
+        const data = await readTestimonials();
+        pending = [...data.pending].sort(
+            (a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
+        );
+    } catch {
+        loadError =
+            "Testimonials data could not be loaded. Check Firebase admin runtime secrets and redeploy.";
+    }
 
     return (
         <div className="space-y-8">
+            {loadError ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
+                    {loadError}
+                </div>
+            ) : null}
+
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2 sm:gap-3">
                 <MessageSquareQuote className="text-blue-700 shrink-0 w-7 h-7 sm:w-8 sm:h-8" />
                 <span>POV & testimonials</span>

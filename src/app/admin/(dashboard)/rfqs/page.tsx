@@ -1,5 +1,4 @@
 import { FileText } from "lucide-react";
-import { listBuyingRequests } from "@/lib/buying-requests-store";
 
 function formatDate(iso: string) {
     try {
@@ -14,10 +13,32 @@ function formatDate(iso: string) {
 }
 
 export default async function AdminRfqsPage() {
-    const requests = await listBuyingRequests();
+    let loadError = "";
+    let requests: Array<{
+        id: string;
+        buyerDisplay: string;
+        productName: string;
+        quantity: string;
+        status: string;
+        createdAt: string;
+    }> = [];
+
+    try {
+        const { listBuyingRequests } = await import("@/lib/buying-requests-store");
+        requests = await listBuyingRequests();
+    } catch {
+        loadError =
+            "RFQs data could not be loaded. Check Firebase admin runtime secrets and redeploy.";
+    }
 
     return (
         <div className="space-y-8">
+            {loadError ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
+                    {loadError}
+                </div>
+            ) : null}
+
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2 sm:gap-3">
                 <FileText className="text-blue-700 shrink-0 w-7 h-7 sm:w-8 sm:h-8" />
                 <span>All buying requests</span>
