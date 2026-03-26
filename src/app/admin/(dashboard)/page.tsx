@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Users, FileText, CheckCircle, Flag, Activity, ArrowRight } from "lucide-react";
 import AdminUserApprovalTable from "@/components/admin/AdminUserApprovalTable";
-import { isFirebaseConfigured } from "@/lib/firebase-admin";
+import { getAdminFirestore, isFirebaseConfigured } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,6 +21,7 @@ function formatRequestDate(iso: string) {
 export default async function AdminDashboard() {
     let loadError = "";
     let configHint = "";
+    let firebaseSecretInvalid = "";
     let stats = {
         totalUsers: 0,
         totalBuyingRequests: 0,
@@ -36,6 +37,9 @@ export default async function AdminDashboard() {
             process.env.NODE_ENV === "production"
                 ? "Firestore admin is off until you set the FIREBASE_SERVICE_ACCOUNT_JSON secret (Cloudflare: Workers/Pages → Settings → Variables and secrets) and redeploy. Local dev can use GOOGLE_APPLICATION_CREDENTIALS pointing at your service account file."
                 : "Add FIREBASE_SERVICE_ACCOUNT_JSON (single-line JSON) or GOOGLE_APPLICATION_CREDENTIALS (path to the service account .json) in .env.local.";
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim() && !getAdminFirestore()) {
+        firebaseSecretInvalid =
+            'FIREBASE_SERVICE_ACCOUNT_JSON is set but Firestore Admin did not start (invalid JSON, wrong key shape, or SDK init failed). Open /api/admin-env-check on this deployment and fix the secret value — paste the downloaded service account JSON as one object, not wrapped in extra quotes. Redeploy after saving.';
     }
 
     try {
@@ -64,6 +68,11 @@ export default async function AdminDashboard() {
             {configHint ? (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
                     {configHint}
+                </div>
+            ) : null}
+            {firebaseSecretInvalid ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm">
+                    {firebaseSecretInvalid}
                 </div>
             ) : null}
             {loadError ? (
