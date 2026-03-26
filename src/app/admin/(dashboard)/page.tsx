@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, FileText, CheckCircle, Flag, Activity, ArrowRight } from "lucide-react";
+import { Users, FileText, CheckCircle, Flag } from "lucide-react";
 import AdminUserApprovalTable from "@/components/admin/AdminUserApprovalTable";
 import { isFirebaseConfigured } from "@/lib/firebase-admin";
 
@@ -127,24 +127,6 @@ export default async function AdminDashboard() {
                         <p className="text-3xl font-bold text-slate-900">{stats.completedDeals.toLocaleString()}</p>
                     </div>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 max-w-xl">
-                <Link
-                    href="/admin/analytics"
-                    className="group bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all flex items-center justify-between gap-4"
-                >
-                    <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-                            <Activity size={24} />
-                        </div>
-                        <div className="min-w-0">
-                            <h2 className="font-bold text-slate-900">Web analytics</h2>
-                            <p className="text-sm text-slate-500 truncate">Sessions, page views, top pages</p>
-                        </div>
-                    </div>
-                    <ArrowRight className="text-slate-400 group-hover:text-blue-700 shrink-0" size={20} />
-                </Link>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">

@@ -8,7 +8,6 @@ import {
     Settings,
     LayoutDashboard,
     Flag,
-    Activity,
     MessageSquareQuote,
     RefreshCcw,
     CalendarClock,
@@ -19,7 +18,6 @@ import { adminLogout } from "@/app/admin/login/actions";
 
 const navItems = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
-    { href: "/admin/analytics", label: "Web analytics", icon: Activity },
     { href: "/admin/buyers", label: "Buyers", icon: Users },
     { href: "/admin/suppliers", label: "Suppliers", icon: Users },
     { href: "/admin/rfqs", label: "All requests", icon: FileText },
