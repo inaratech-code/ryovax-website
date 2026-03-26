@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import DashboardAppShell from "@/components/layout/DashboardAppShell";
-import { adminLogout } from "@/app/admin/login/actions";
 
 const navItems = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -66,7 +65,7 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
             >
                 <RefreshCcw size={18} className={refreshing ? "animate-spin" : ""} />
             </button>
-            <form action={adminLogout}>
+            <form action="/admin/logout" method="post">
                 <button
                     type="submit"
                     className="text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors duration-200 ease-out px-2 py-1 rounded-md hover:bg-slate-50"
