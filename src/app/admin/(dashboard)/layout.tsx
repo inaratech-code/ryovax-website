@@ -7,13 +7,16 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
-    const allowPanel = process.env.NODE_ENV === "development" || process.env.ADMIN_PANEL_ENABLED === "true";
+    const hasPasswordAuth = !!process.env.ADMIN_PASSWORD?.trim();
+    const allowPanel =
+        process.env.NODE_ENV === "development" ||
+        process.env.ADMIN_PANEL_ENABLED === "true" ||
+        hasPasswordAuth;
     if (!allowPanel) {
         redirect("/");
     }
 
-    const passwordAuth = !!process.env.ADMIN_PASSWORD?.trim();
-    if (passwordAuth) {
+    if (hasPasswordAuth) {
         const token = (await cookies()).get(ADMIN_SESSION_COOKIE)?.value;
         const ok = token ? await verifyAdminSessionToken(token) : false;
         if (!ok) {
