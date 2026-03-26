@@ -11,6 +11,14 @@ import { getPublicFirebaseConfig } from "@/lib/firebase-client";
  */
 export default function FirebaseAnalytics() {
     useEffect(() => {
+        // Firebase Analytics logs noisy warnings in extension-like contexts.
+        const inExtensionContext =
+            typeof window !== "undefined" &&
+            (window.location.protocol.includes("extension") ||
+                // @ts-expect-error Chrome runtime is not in default TS lib.
+                !!window.chrome?.runtime?.id);
+        if (inExtensionContext) return;
+
         const config = getPublicFirebaseConfig();
         if (!config) return;
 

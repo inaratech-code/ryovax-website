@@ -46,8 +46,11 @@ export default function AdminLoginForm({ requireUserId }: Props) {
 
                     <form action={formAction} className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">User ID</label>
+                            <label htmlFor="admin-username" className="block text-sm font-medium text-slate-300 mb-2">
+                                User ID
+                            </label>
                             <input
+                                id="admin-username"
                                 name="username"
                                 type="text"
                                 autoComplete="username"
@@ -58,8 +61,11 @@ export default function AdminLoginForm({ requireUserId }: Props) {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                            <label htmlFor="admin-password" className="block text-sm font-medium text-slate-300 mb-2">
+                                Password
+                            </label>
                             <input
+                                id="admin-password"
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
