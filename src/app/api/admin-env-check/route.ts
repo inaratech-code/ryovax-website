@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
-import { parseFirebaseServiceAccountJson } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-function truncate(s: string, max: number): string {
-    if (s.length <= max) return s;
-    return `${s.slice(0, max)}…`;
-}
 
 export async function GET() {
     const adminPanelEnabled = process.env.ADMIN_PANEL_ENABLED?.trim() === "true";
@@ -19,9 +13,13 @@ export async function GET() {
     let firebaseJsonParseOk = false;
     let firebaseJsonParseError = "";
     if (firebaseJsonConfigured) {
-        const parsed = parseFirebaseServiceAccountJson(process.env.FIREBASE_SERVICE_ACCOUNT_JSON as string);
-        firebaseJsonParseOk = parsed.ok;
-        firebaseJsonParseError = parsed.ok ? "" : truncate(parsed.error, 240);
+        try {
+            JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON as string);
+            firebaseJsonParseOk = true;
+        } catch (e) {
+            firebaseJsonParseOk = false;
+            firebaseJsonParseError = e instanceof Error ? e.name : "Unknown error";
+        }
     }
 
     let firebaseInitOk = false;

@@ -3,42 +3,6 @@ import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
 let cachedDb: Firestore | undefined;
 
-function isServiceAccountObject(o: Record<string, unknown>): boolean {
-    return (
-        o.type === "service_account" &&
-        typeof o.private_key === "string" &&
-        typeof o.client_email === "string"
-    );
-}
-
-/**
- * Parses `FIREBASE_SERVICE_ACCOUNT_JSON` tolerating a UTF-8 BOM and accidental double-stringification
- * (some UIs store the whole JSON as a JSON string value).
- */
-export function parseFirebaseServiceAccountJson(raw: string): { ok: true; data: object } | { ok: false; error: string } {
-    let s = raw.trim();
-    if (s.charCodeAt(0) === 0xfeff) s = s.slice(1);
-
-    try {
-        const first: unknown = JSON.parse(s);
-        if (first && typeof first === "object" && !Array.isArray(first)) {
-            const rec = first as Record<string, unknown>;
-            if (isServiceAccountObject(rec)) return { ok: true, data: rec as object };
-        }
-        if (typeof first === "string") {
-            const second: unknown = JSON.parse(first.trim());
-            if (second && typeof second === "object" && !Array.isArray(second)) {
-                const rec = second as Record<string, unknown>;
-                if (isServiceAccountObject(rec)) return { ok: true, data: rec as object };
-            }
-        }
-        return { ok: false, error: 'Expected a service account object (type "service_account" with client_email and private_key).' };
-    } catch (e) {
-        const msg = e instanceof Error ? e.message : "JSON parse failed";
-        return { ok: false, error: msg };
-    }
-}
-
 export function isFirebaseConfigured(): boolean {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) return true;
     // Local dev: ADC file path. Production serverless (e.g. Cloudflare) has no key file — use FIREBASE_SERVICE_ACCOUNT_JSON secret.
@@ -62,9 +26,7 @@ export function getAdminFirestore(): Firestore | null {
         let app: App;
         if (!getApps().length) {
             if (json) {
-                const parsed = parseFirebaseServiceAccountJson(json);
-                if (!parsed.ok) return null;
-                app = initializeApp({ credential: cert(parsed.data) });
+                app = initializeApp({ credential: cert(JSON.parse(json)) });
             } else {
                 app = initializeApp();
             }
