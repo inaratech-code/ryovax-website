@@ -11,33 +11,8 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (pathname.startsWith("/admin")) {
-        const passwordAuth = !!process.env.ADMIN_PASSWORD?.trim();
-        const allowPanel =
-            process.env.NODE_ENV === "development" ||
-            process.env.ADMIN_PANEL_ENABLED === "true" ||
-            passwordAuth;
-        if (!allowPanel) {
-            return NextResponse.redirect(new URL("/", request.url));
-        }
-
-        if (!passwordAuth) {
-            return NextResponse.next();
-        }
-
-        const isAdminLogin = pathname === "/admin/login" || pathname.startsWith("/admin/login/");
-        const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
-
-        if (isAdminLogin) {
-            if (token && (await verifyAdminSessionToken(token))) {
-                return NextResponse.redirect(new URL("/admin", request.url));
-            }
-            return NextResponse.next();
-        }
-
-        if (!token || !(await verifyAdminSessionToken(token))) {
-            return NextResponse.redirect(new URL("/admin/login", request.url));
-        }
-
+        // Cloudflare edge/proxy deployments may not expose runtime env vars reliably.
+        // Admin gating is enforced in the server layouts/pages instead of here.
         return NextResponse.next();
     }
 
