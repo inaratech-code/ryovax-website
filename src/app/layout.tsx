@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="overflow-x-hidden" data-scroll-behavior="smooth">
+    <html lang="en" className="overflow-x-hidden">
       <body className="antialiased bg-white text-slate-900 selection:bg-saffron-500 selection:text-slate-900 overflow-x-hidden">
         <FirebaseAnalytics />
         <LenisScroll>

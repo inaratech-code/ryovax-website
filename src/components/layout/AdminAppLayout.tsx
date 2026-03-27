@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     Users,
@@ -56,7 +56,9 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
                 type="button"
                 onClick={() => {
                     setRefreshing(true);
-                    router.refresh();
+                    startTransition(() => {
+                        router.refresh();
+                    });
                     setTimeout(() => setRefreshing(false), 450);
                 }}
                 className="p-2 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-slate-100 transition-colors"

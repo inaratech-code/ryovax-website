@@ -25,16 +25,18 @@ function RotatingGlobe() {
         groupRef.current.rotation.x += (targetY - groupRef.current.rotation.x) * 0.02;
     });
 
-    // Generate some trade lines (curved)
+    // Generate some trade lines (curved) — deterministic so render stays pure for React rules.
     const tradeLines = useMemo(() => {
+        const fract = (n: number) => n - Math.floor(n);
         const lines = [];
-        for (let i = 0; i < 12; i++) {
-            // Simple random points on sphere
-            const phi1 = Math.acos(-1 + (2 * Math.random()));
+        for (let i = 0; i < 8; i++) {
+            const a = fract(i * 0.618033988749895 + 0.11);
+            const b = fract(i * 0.381966011250105 + 0.73);
+            const phi1 = Math.acos(-1 + 2 * a);
             const theta1 = Math.sqrt(Math.PI * 100) * phi1;
             const p1 = new THREE.Vector3().setFromSphericalCoords(2, phi1, theta1);
 
-            const phi2 = Math.acos(-1 + (2 * Math.random()));
+            const phi2 = Math.acos(-1 + 2 * b);
             const theta2 = Math.sqrt(Math.PI * 100) * phi2;
             const p2 = new THREE.Vector3().setFromSphericalCoords(2, phi2, theta2);
 
@@ -43,7 +45,7 @@ function RotatingGlobe() {
             midPoint.normalize().multiplyScalar(2.3);
 
             const curve = new THREE.QuadraticBezierCurve3(p1, midPoint, p2);
-            lines.push(curve.getPoints(12));
+            lines.push(curve.getPoints(8));
         }
         return lines;
     }, []);
@@ -51,7 +53,7 @@ function RotatingGlobe() {
     return (
         <group ref={groupRef}>
             {/* The main earth sphere */}
-            <Sphere args={[2, 48, 48]}>
+            <Sphere args={[2, 32, 32]}>
                 <meshStandardMaterial
                     color="#1e3a8a"
                     transparent
@@ -63,7 +65,7 @@ function RotatingGlobe() {
             </Sphere>
 
             {/* Slightly larger sphere for glow / atmosphere */}
-            <Sphere args={[2.05, 24, 24]}>
+            <Sphere args={[2.05, 20, 20]}>
                 <meshBasicMaterial color="#3b82f6" transparent opacity={0.1} />
             </Sphere>
 
@@ -100,16 +102,16 @@ export default function Globe3D() {
         <div className="w-full h-full cursor-grab active:cursor-grabbing">
             <Canvas
                 camera={{ position: [0, 0, 5.5], fov: 45 }}
-                dpr={[1, 1.5]}
-                gl={{ powerPreference: "high-performance", antialias: false }}
+                dpr={[1, 1.25]}
+                gl={{ powerPreference: "low-power", antialias: false, stencil: false, depth: true }}
             >
                 <RotatingGlobe />
                 <OrbitControls
                     enableZoom={false}
                     enablePan={false}
                     enableDamping={true}
-                    dampingFactor={0.08}
-                    rotateSpeed={0.6}
+                    dampingFactor={0.12}
+                    rotateSpeed={0.55}
                     maxPolarAngle={Math.PI / 1.5}
                     minPolarAngle={Math.PI / 3}
                 />

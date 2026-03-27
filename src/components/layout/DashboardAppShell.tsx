@@ -152,7 +152,7 @@ export default function DashboardAppShell({
 
                 {header}
 
-                <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 md:px-8 bg-slate-50 scroll-smooth [scrollbar-gutter:stable]">{children}</main>
+                <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 md:px-8 bg-slate-50 scroll-auto [scrollbar-gutter:stable]">{children}</main>
             </div>
         </div>
     );
