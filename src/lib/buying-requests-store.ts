@@ -1,5 +1,6 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import type { FirestoreQueryDoc } from "@/lib/firestore-query-doc";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 /** Matches existing UI labels */
@@ -52,7 +53,9 @@ export async function listBuyingRequests(limit?: number): Promise<BuyingRequest[
         return [];
     }
     const out: BuyingRequest[] = [];
-    snap.forEach((doc) => out.push(docToRequest(doc.id, doc.data() as Record<string, unknown>)));
+    snap.forEach((doc: FirestoreQueryDoc) =>
+        out.push(docToRequest(doc.id, doc.data() as Record<string, unknown>)),
+    );
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return limit != null ? out.slice(0, limit) : out;
 }
@@ -88,7 +91,9 @@ export async function countCompletedDeals(): Promise<number> {
     } catch {
         return 0;
     }
-    return snap.docs.filter((d) => ["Completed", "Closed"].includes(String(d.data().status))).length;
+    return snap.docs.filter((d: FirestoreQueryDoc) =>
+        ["Completed", "Closed"].includes(String(d.data().status)),
+    ).length;
 }
 
 export async function createBuyingRequest(
@@ -108,7 +113,7 @@ export async function createBuyingRequest(
             quantity: input.quantity,
             status: input.status,
             createdAt,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
     return { id, createdAt };
 }

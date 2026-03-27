@@ -1,5 +1,6 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import type { FirestoreQueryDoc } from "@/lib/firestore-query-doc";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 export type BookingMode = "specific" | "range";
@@ -58,7 +59,9 @@ export async function listAppointments(): Promise<AppointmentRecord[]> {
     if (!c) return [];
     const snap = await c.get();
     const out: AppointmentRecord[] = [];
-    snap.forEach((doc) => out.push(docToAppointment(doc.id, doc.data() as Record<string, unknown>)));
+    snap.forEach((doc: FirestoreQueryDoc) =>
+        out.push(docToAppointment(doc.id, doc.data() as Record<string, unknown>)),
+    );
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return out;
 }
@@ -80,7 +83,7 @@ export async function createAppointment(input: Omit<AppointmentRecord, "id" | "c
         createdAt,
         adminScheduledAtUtc: input.adminScheduledAtUtc ?? null,
         adminNotes: input.adminNotes ?? "",
-        updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: serverTimestampField(),
     });
     return { id: input.id, createdAt };
 }
@@ -98,7 +101,7 @@ export async function updateAppointmentAdmin(
     const snap = await ref.get();
     if (!snap.exists) return { ok: false, error: "Not found" };
     const update: Record<string, unknown> = {
-        updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: serverTimestampField(),
     };
     if ("adminScheduledAtUtc" in patch) update.adminScheduledAtUtc = patch.adminScheduledAtUtc ?? null;
     if (patch.adminNotes !== undefined) update.adminNotes = patch.adminNotes;

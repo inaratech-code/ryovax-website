@@ -1,5 +1,6 @@
-import { FieldValue, type DocumentData } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import type { FirestoreQueryDoc } from "@/lib/firestore-query-doc";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 export type PendingSubmission = {
@@ -34,7 +35,7 @@ const col = () => {
     return db.collection(FIRESTORE.testimonialSubmissions);
 };
 
-function docToPending(id: string, data: DocumentData): PendingSubmission {
+function docToPending(id: string, data: Record<string, unknown>): PendingSubmission {
     return {
         id,
         reviewType: data.reviewType === "negative" ? "negative" : "positive",
@@ -48,7 +49,7 @@ function docToPending(id: string, data: DocumentData): PendingSubmission {
     };
 }
 
-function docToApproved(id: string, data: DocumentData): ApprovedTestimonial {
+function docToApproved(id: string, data: Record<string, unknown>): ApprovedTestimonial {
     return {
         id,
         text: String(data.text ?? data.message ?? ""),
@@ -68,12 +69,12 @@ export async function readTestimonials(): Promise<TestimonialsData> {
     ]);
 
     const pending: PendingSubmission[] = [];
-    pendingSnap.forEach((doc) => {
+    pendingSnap.forEach((doc: FirestoreQueryDoc) => {
         pending.push(docToPending(doc.id, doc.data()));
     });
 
     const approved: ApprovedTestimonial[] = [];
-    approvedSnap.forEach((doc) => {
+    approvedSnap.forEach((doc: FirestoreQueryDoc) => {
         approved.push(docToApproved(doc.id, doc.data()));
     });
 
@@ -90,7 +91,7 @@ export async function writeTestimonials(data: TestimonialsData): Promise<void> {
     if (!db || !c) throw new Error("Firebase is not configured");
     const batch = db.batch();
     const existing = await c.get();
-    existing.forEach((doc) => batch.delete(doc.ref));
+    existing.forEach((doc: FirestoreQueryDoc) => batch.delete(doc.ref));
 
     for (const p of data.pending) {
         batch.set(c.doc(p.id), {
@@ -103,7 +104,7 @@ export async function writeTestimonials(data: TestimonialsData): Promise<void> {
             rating: p.rating ?? null,
             issueType: p.issueType ?? null,
             submittedAt: p.submittedAt,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
     }
     for (const a of data.approved) {
@@ -115,7 +116,7 @@ export async function writeTestimonials(data: TestimonialsData): Promise<void> {
             company: a.company,
             approvedAt: a.approvedAt,
             submittedAt: a.approvedAt,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
     }
     await batch.commit();
@@ -157,7 +158,7 @@ export async function addPendingSubmission(p: PendingSubmission): Promise<void> 
             rating: p.rating ?? null,
             issueType: p.issueType ?? null,
             submittedAt: p.submittedAt,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
 }
 
@@ -181,7 +182,7 @@ export async function approvePendingById(id: string): Promise<{ ok: true } | { o
             approvedAt: approved.approvedAt,
             submittedAt: pending.submittedAt,
             reviewType: pending.reviewType,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         },
         { merge: false },
     );

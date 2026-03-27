@@ -1,5 +1,6 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import type { FirestoreQueryDoc } from "@/lib/firestore-query-doc";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 export type UserRegistrationRole = "buyer" | "supplier";
@@ -62,7 +63,9 @@ export async function listUserRegistrations(): Promise<UserRegistration[]> {
         return [];
     }
     const out: UserRegistration[] = [];
-    snap.forEach((doc) => out.push(docToUser(doc.id, doc.data() as Record<string, unknown>)));
+    snap.forEach((doc: FirestoreQueryDoc) =>
+        out.push(docToUser(doc.id, doc.data() as Record<string, unknown>)),
+    );
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return out;
 }
@@ -89,7 +92,7 @@ export async function setUserRegistrationStatus(
     try {
         await ref.update({
             status,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
     } catch {
         return { ok: false, error: "Could not update status right now." };
@@ -197,7 +200,7 @@ export async function createPendingRegistration(
         role: input.role,
         status: "pending",
         passwordHash: input.passwordHash,
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: serverTimestampField(),
     }).catch(() => null);
 
     if (!ref) return { ok: false, error: "Could not create registration right now." };
