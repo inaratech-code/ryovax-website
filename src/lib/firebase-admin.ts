@@ -1,7 +1,8 @@
-import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
-import { initializeFirestore, type Firestore } from "firebase-admin/firestore";
+import type { Firestore } from "firebase-admin/firestore";
+import { getRestFirestoreDb } from "@/lib/firestore-rest-client";
+import { shouldUseFirestoreRest } from "@/lib/should-use-firestore-rest";
 
-let cachedDb: Firestore | undefined;
+let cachedRest: ReturnType<typeof getRestFirestoreDb> | undefined;
 let lastInitError: string | null = null;
 
 export function getLastFirebaseAdminInitError(): string | null {
@@ -10,7 +11,6 @@ export function getLastFirebaseAdminInitError(): string | null {
 
 export function isFirebaseConfigured(): boolean {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) return true;
-    // Local dev: ADC file path. Production serverless (e.g. Cloudflare) has no key file — use FIREBASE_SERVICE_ACCOUNT_JSON secret.
     if (!process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim()) return false;
     if (process.env.NODE_ENV === "production") {
         return process.env.FIREBASE_ALLOW_GOOGLE_APPLICATION_CREDENTIALS_IN_PRODUCTION === "true";
@@ -19,34 +19,34 @@ export function isFirebaseConfigured(): boolean {
 }
 
 /**
- * Returns Firestore when Firebase Admin is configured; otherwise `null` (e.g. CI build without secrets).
- * Set `FIREBASE_SERVICE_ACCOUNT_JSON`, or optionally a readable file path via `GOOGLE_APPLICATION_CREDENTIALS`.
+ * Returns Firestore when configured; otherwise `null` (e.g. CI without secrets).
+ * On Cloudflare Workers, uses Firestore REST + OAuth (no firebase-admin — avoids EvalError).
  */
 export function getAdminFirestore(): Firestore | null {
     if (!isFirebaseConfigured()) return null;
-    if (cachedDb) return cachedDb;
-
-    const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
     lastInitError = null;
-    try {
-        let app: App;
-        if (!getApps().length) {
-            if (json) {
-                app = initializeApp({ credential: cert(JSON.parse(json)) });
-            } else {
-                app = initializeApp();
-            }
-        } else {
-            app = getApps()[0]!;
-        }
 
-        // Cloudflare Workers/OpenNext: gRPC often fails; REST transport is safer.
-        const preferRest = process.env.FIRESTORE_PREFER_REST !== "false";
-        cachedDb = initializeFirestore(app, { preferRest });
-        return cachedDb;
+    if (shouldUseFirestoreRest()) {
+        try {
+            if (!cachedRest) cachedRest = getRestFirestoreDb();
+            return cachedRest as unknown as Firestore;
+        } catch (e) {
+            lastInitError = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+            return null;
+        }
+    }
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { getSdkFirestore } = require("@/lib/firebase-admin-sdk") as typeof import("@/lib/firebase-admin-sdk");
+        const db = getSdkFirestore();
+        if (!db) {
+            lastInitError = "getSdkFirestore returned null";
+            return null;
+        }
+        return db;
     } catch (e) {
         lastInitError = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-        // Runtime credentials/parsing issue: expose as "not configured" to callers.
         return null;
     }
 }

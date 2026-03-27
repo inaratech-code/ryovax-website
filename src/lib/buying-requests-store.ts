@@ -1,5 +1,5 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 /** Matches existing UI labels */
@@ -108,7 +108,7 @@ export async function createBuyingRequest(
             quantity: input.quantity,
             status: input.status,
             createdAt,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
     return { id, createdAt };
 }

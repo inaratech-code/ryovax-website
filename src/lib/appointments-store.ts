@@ -1,5 +1,5 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 export type BookingMode = "specific" | "range";
@@ -80,7 +80,7 @@ export async function createAppointment(input: Omit<AppointmentRecord, "id" | "c
         createdAt,
         adminScheduledAtUtc: input.adminScheduledAtUtc ?? null,
         adminNotes: input.adminNotes ?? "",
-        updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: serverTimestampField(),
     });
     return { id: input.id, createdAt };
 }
@@ -98,7 +98,7 @@ export async function updateAppointmentAdmin(
     const snap = await ref.get();
     if (!snap.exists) return { ok: false, error: "Not found" };
     const update: Record<string, unknown> = {
-        updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: serverTimestampField(),
     };
     if ("adminScheduledAtUtc" in patch) update.adminScheduledAtUtc = patch.adminScheduledAtUtc ?? null;
     if (patch.adminNotes !== undefined) update.adminNotes = patch.adminNotes;

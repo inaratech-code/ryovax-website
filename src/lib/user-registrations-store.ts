@@ -1,5 +1,5 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
 export type UserRegistrationRole = "buyer" | "supplier";
@@ -89,7 +89,7 @@ export async function setUserRegistrationStatus(
     try {
         await ref.update({
             status,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: serverTimestampField(),
         });
     } catch {
         return { ok: false, error: "Could not update status right now." };
@@ -197,7 +197,7 @@ export async function createPendingRegistration(
         role: input.role,
         status: "pending",
         passwordHash: input.passwordHash,
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: serverTimestampField(),
     }).catch(() => null);
 
     if (!ref) return { ok: false, error: "Could not create registration right now." };
