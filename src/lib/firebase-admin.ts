@@ -1,5 +1,5 @@
-import type { App } from "firebase-admin/app";
-import type { Firestore } from "firebase-admin/firestore";
+import type { App } from "firebase-admin/lib/app/index.js";
+import type { Firestore } from "firebase-admin/lib/firestore/index.js";
 
 // Cloudflare/OpenNext: importing `firebase-admin/app` can get externalized by Turbopack/OpenNext,
 // leading to runtime "No such module". Import the concrete JS entrypoints so Wrangler bundles them.

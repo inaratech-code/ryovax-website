@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/lib/firestore/index.js";
 import { getAdminFirestore } from "@/lib/firebase-admin";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
