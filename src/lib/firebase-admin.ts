@@ -1,6 +1,9 @@
-import type { Firestore } from "firebase-admin/firestore";
 import { getRestFirestoreDb } from "@/lib/firestore-rest-client";
 import { shouldUseFirestoreRest } from "@/lib/should-use-firestore-rest";
+
+/** Avoid `import type` from `firebase-admin/*` so bundlers never pull that package into the worker. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AdminFirestore = any;
 
 let cachedRest: ReturnType<typeof getRestFirestoreDb> | undefined;
 let lastInitError: string | null = null;
@@ -22,14 +25,14 @@ export function isFirebaseConfigured(): boolean {
  * Returns Firestore when configured; otherwise `null` (e.g. CI without secrets).
  * On Cloudflare Workers, uses Firestore REST + OAuth (no firebase-admin — avoids EvalError).
  */
-export function getAdminFirestore(): Firestore | null {
+export function getAdminFirestore(): AdminFirestore | null {
     if (!isFirebaseConfigured()) return null;
     lastInitError = null;
 
     if (shouldUseFirestoreRest()) {
         try {
             if (!cachedRest) cachedRest = getRestFirestoreDb();
-            return cachedRest as unknown as Firestore;
+            return cachedRest as AdminFirestore;
         } catch (e) {
             lastInitError = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
             return null;

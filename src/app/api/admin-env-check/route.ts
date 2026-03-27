@@ -60,6 +60,9 @@ export async function GET() {
                 firebaseInitError,
                 firestorePreferRest: process.env.FIRESTORE_PREFER_REST !== "false",
                 firestoreUseRest: shouldUseFirestoreRest(),
+                /** Helps debug: "true" / "false" / unset — `false` no longer blocks REST when JSON is set. */
+                envFIRESTORE_USE_REST: process.env.FIRESTORE_USE_REST ?? "unset",
+                useFirebaseAdminSdk: process.env.USE_FIREBASE_ADMIN_SDK === "true",
                 googleCredentialsPathConfigured,
             },
         },

@@ -2,18 +2,23 @@
  * Cloudflare Workers forbid eval / dynamic code generation; firebase-admin triggers that at init.
  * When true, use Firestore REST + OAuth (jose) instead of the Admin SDK.
  *
- * **Default:** If `FIREBASE_SERVICE_ACCOUNT_JSON` is set, we use REST. OpenNext deploys to
- * Workers (not always Pages), so `CF_PAGES` / `navigator.userAgent` are unreliable; your
- * JSON secret is the signal that REST is both possible and required on CF.
+ * **Important:** If `FIREBASE_SERVICE_ACCOUNT_JSON` is set, we choose REST **before** honoring
+ * `FIRESTORE_USE_REST=false`. Many deployments still have `FIRESTORE_USE_REST=false` in secrets
+ * from earlier debugging; that would otherwise force the Admin SDK and cause EvalError on Workers.
  *
- * Set `FIRESTORE_USE_REST=false` to force the Admin SDK (Node, local dev, or gRPC-only needs).
- * Set `FIRESTORE_USE_REST=true` to force REST even when only using ADC (must still supply JSON for our REST client).
+ * To use the Admin SDK with JSON credentials (Node only), set `USE_FIREBASE_ADMIN_SDK=true`.
+ *
+ * ADC-only (no JSON): `FIRESTORE_USE_REST=false` forces the SDK; `true` forces REST.
  */
 export function shouldUseFirestoreRest(): boolean {
-    if (process.env.FIRESTORE_USE_REST === "false") return false;
+    if (process.env.USE_FIREBASE_ADMIN_SDK === "true") return false;
+
     if (process.env.FIRESTORE_USE_REST === "true") return true;
-    // Prefer REST whenever JSON credentials are in env (typical for production secrets).
+
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim()) return true;
+
+    if (process.env.FIRESTORE_USE_REST === "false") return false;
+
     try {
         if (typeof navigator !== "undefined" && String(navigator.userAgent ?? "").includes("Cloudflare")) {
             return true;
