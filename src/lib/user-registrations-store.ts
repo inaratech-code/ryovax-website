@@ -1,4 +1,5 @@
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import type { FirestoreQueryDoc } from "@/lib/firestore-query-doc";
 import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
@@ -62,7 +63,9 @@ export async function listUserRegistrations(): Promise<UserRegistration[]> {
         return [];
     }
     const out: UserRegistration[] = [];
-    snap.forEach((doc) => out.push(docToUser(doc.id, doc.data() as Record<string, unknown>)));
+    snap.forEach((doc: FirestoreQueryDoc) =>
+        out.push(docToUser(doc.id, doc.data() as Record<string, unknown>)),
+    );
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return out;
 }

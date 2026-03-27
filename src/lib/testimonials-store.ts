@@ -1,4 +1,5 @@
 import { getAdminFirestore } from "@/lib/firebase-admin";
+import type { FirestoreQueryDoc } from "@/lib/firestore-query-doc";
 import { serverTimestampField } from "@/lib/firestore-timestamps";
 import { FIRESTORE } from "@/lib/firestore-collections";
 
@@ -68,12 +69,12 @@ export async function readTestimonials(): Promise<TestimonialsData> {
     ]);
 
     const pending: PendingSubmission[] = [];
-    pendingSnap.forEach((doc) => {
+    pendingSnap.forEach((doc: FirestoreQueryDoc) => {
         pending.push(docToPending(doc.id, doc.data()));
     });
 
     const approved: ApprovedTestimonial[] = [];
-    approvedSnap.forEach((doc) => {
+    approvedSnap.forEach((doc: FirestoreQueryDoc) => {
         approved.push(docToApproved(doc.id, doc.data()));
     });
 
@@ -90,7 +91,7 @@ export async function writeTestimonials(data: TestimonialsData): Promise<void> {
     if (!db || !c) throw new Error("Firebase is not configured");
     const batch = db.batch();
     const existing = await c.get();
-    existing.forEach((doc) => batch.delete(doc.ref));
+    existing.forEach((doc: FirestoreQueryDoc) => batch.delete(doc.ref));
 
     for (const p of data.pending) {
         batch.set(c.doc(p.id), {
