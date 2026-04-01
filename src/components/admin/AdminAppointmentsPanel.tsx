@@ -33,15 +33,7 @@ export default function AdminAppointmentsPanel({
     }
 
     if (rows.length === 0) {
-        return (
-            <p className="text-slate-600 text-sm py-8 text-center">
-                No appointments yet. Bookings from{" "}
-                <a href="/book-appointment" className="text-blue-700 font-medium hover:underline">
-                    /book-appointment
-                </a>{" "}
-                will appear here.
-            </p>
-        );
+        return <p className="text-slate-500 text-sm py-8 text-center">No appointments yet.</p>;
     }
 
     return (

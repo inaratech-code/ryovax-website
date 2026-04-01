@@ -57,13 +57,29 @@ function docToAppointment(id: string, data: Record<string, unknown>): Appointmen
 export async function listAppointments(): Promise<AppointmentRecord[]> {
     const c = col();
     if (!c) return [];
-    const snap = await c.get();
+    let snap;
+    try {
+        snap = await c.get();
+    } catch {
+        return [];
+    }
     const out: AppointmentRecord[] = [];
     snap.forEach((doc: FirestoreQueryDoc) =>
         out.push(docToAppointment(doc.id, doc.data() as Record<string, unknown>)),
     );
     out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return out;
+}
+
+export async function countAppointments(): Promise<number> {
+    const c = col();
+    if (!c) return 0;
+    try {
+        const snap = await c.count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
 }
 
 export async function createAppointment(input: Omit<AppointmentRecord, "id" | "createdAt"> & { id: string }) {

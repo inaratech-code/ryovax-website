@@ -22,11 +22,12 @@ export default function LenisScroll({ children }: { children: React.ReactNode })
     }
 
     const lenis = new Lenis({
-      // Balance: higher lerp = snappier follow; lower = floatier.
-      lerp: 0.16,
-      wheelMultiplier: 1,
+      // Higher lerp = scroll catches up faster (less “lag” behind the wheel).
+      lerp: 0.26,
+      wheelMultiplier: 1.05,
       smoothWheel: true,
-      touchMultiplier: 1.12,
+      touchMultiplier: 1,
+      syncTouch: false,
     });
 
     function raf(time: number) {

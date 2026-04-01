@@ -1,10 +1,11 @@
 import { CalendarClock } from "lucide-react";
 import AdminAppointmentsPanel from "@/components/admin/AdminAppointmentsPanel";
 import { getAdminDisplayTimezone } from "@/lib/appointment-time";
+import type { AppointmentRecord } from "@/lib/appointments-store";
 
 export default async function AdminAppointmentsPage() {
     let loadError = "";
-    let appointments: any[] = [];
+    let appointments: AppointmentRecord[] = [];
     const adminTimezone = getAdminDisplayTimezone();
 
     try {
@@ -28,15 +29,6 @@ export default async function AdminAppointmentsPage() {
                 <span>Appointments</span>
             </h1>
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100 space-y-2">
-                    <p className="text-slate-600 text-sm">
-                        All booking requests from the site. User times are shown in their timezone; the{" "}
-                        <span className="font-medium text-slate-800">Admin</span> column uses{" "}
-                        <code className="text-xs bg-slate-100 px-1 rounded">{adminTimezone}</code> (set{" "}
-                        <code className="text-xs bg-slate-100 px-1 rounded">ADMIN_PANEL_TIMEZONE</code> in env). Adjust
-                        the admin slot to coordinate calls.
-                    </p>
-                </div>
                 <div className="p-6">
                     <AdminAppointmentsPanel initial={appointments} adminTimezone={adminTimezone} />
                 </div>

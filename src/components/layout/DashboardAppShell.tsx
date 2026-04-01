@@ -10,6 +10,7 @@ export type ShellNavItem = {
     href: string;
     label: string;
     icon: ComponentType<{ size?: number; className?: string }>;
+    badge?: number;
 };
 
 type DashboardAppShellProps = {
@@ -60,9 +61,11 @@ export default function DashboardAppShell({
     const navLinkClass = (href: string) => {
         const active = isActive(href);
         return active
-            ? `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors duration-200 ease-out ${activeBg}`
-            : "flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white font-medium transition-colors duration-200 ease-out";
+            ? `group flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors duration-200 ease-out ${activeBg}`
+            : "group flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white font-medium transition-colors duration-200 ease-out";
     };
+
+    const formatBadge = (n: number) => (n > 99 ? "99+" : String(n));
 
     const renderSidebarInner = (onClose?: () => void) => (
         <>
@@ -102,7 +105,20 @@ export default function DashboardAppShell({
                         onClick={() => onClose?.()}
                     >
                         <item.icon size={20} className="shrink-0" />
-                        {item.label}
+                        <span className="min-w-0 truncate">{item.label}</span>
+                        {typeof item.badge === "number" && item.badge > 0 ? (
+                            <span
+                                className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
+                                    isActive(item.href)
+                                        ? "bg-white/15 text-white"
+                                        : "bg-slate-800 text-slate-200 group-hover:bg-white/10"
+                                }`}
+                                aria-label={`${item.label} count ${item.badge}`}
+                                title={`${item.badge}`}
+                            >
+                                {formatBadge(item.badge)}
+                            </span>
+                        ) : null}
                     </Link>
                 ))}
             </nav>
@@ -152,7 +168,7 @@ export default function DashboardAppShell({
 
                 {header}
 
-                <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 md:px-8 bg-slate-50 scroll-smooth [scrollbar-gutter:stable]">{children}</main>
+                <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 md:px-8 bg-slate-50 scroll-auto [scrollbar-gutter:stable]">{children}</main>
             </div>
         </div>
     );

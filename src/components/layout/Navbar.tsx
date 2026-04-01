@@ -37,12 +37,6 @@ export default function Navbar() {
     useBodyScrollLock(mobileMenuOpen);
 
     useEffect(() => {
-        if (mobileMenuOpen) {
-            setHeaderHidden(false);
-        }
-    }, [mobileMenuOpen]);
-
-    useEffect(() => {
         lastScrollY.current = typeof window !== "undefined" ? window.scrollY : 0;
     }, []);
 
@@ -89,15 +83,15 @@ export default function Navbar() {
 
     return (
         <motion.header
-            initial={{ y: -16, opacity: 0.96 }}
+            initial={{ y: -12, opacity: 0.98 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             className="fixed top-0 left-0 right-0 z-50"
         >
             <div
-                className={`transition-[transform,background-color,border-color,box-shadow,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+                className={`transition-[transform,background-color,border-color,box-shadow,padding] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                     headerHidden && !mobileMenuOpen ? "-translate-y-full" : "translate-y-0"
-                } ${isScrolled ? "bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-2 sm:py-2.5" : "bg-transparent py-3 sm:py-4"}`}
+                } ${isScrolled ? "bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm py-2 sm:py-2.5" : "bg-transparent py-3 sm:py-4"}`}
             >
                 <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 min-w-0">
                 {/* Logo */}
@@ -147,7 +141,10 @@ export default function Navbar() {
                 <button
                     type="button"
                     className="lg:hidden shrink-0 text-slate-900 p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                    onClick={() => setMobileMenuOpen(true)}
+                    onClick={() => {
+                        setHeaderHidden(false);
+                        setMobileMenuOpen(true);
+                    }}
                     aria-label="Open menu"
                     aria-expanded={mobileMenuOpen}
                 >
