@@ -6,6 +6,7 @@ export default async function AdminSuppliersPage() {
     let setActive:
         | ((id: string, active: boolean) => Promise<unknown>)
         | undefined;
+    let totalApproved = 0;
     let rows: Array<{
         id: string;
         companyName: string;
@@ -20,13 +21,17 @@ export default async function AdminSuppliersPage() {
 
     try {
         const [
-            { listUserRegistrations },
+            { listUserRegistrations, countApprovedUserRegistrationsByRole },
             { setSupplierActive },
         ] = await Promise.all([
             import("@/lib/user-registrations-store"),
             import("./actions"),
         ]);
-        const all = await listUserRegistrations();
+        const [all, approvedCount] = await Promise.all([
+            listUserRegistrations(),
+            countApprovedUserRegistrationsByRole("supplier"),
+        ]);
+        totalApproved = approvedCount;
         rows = all
             .filter((u) => u.role === "supplier")
             .map((u) => ({ ...u, role: "supplier" as const }));
@@ -47,6 +52,9 @@ export default async function AdminSuppliersPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2 sm:gap-3">
                 <Factory className="text-saffron-600 shrink-0 w-7 h-7 sm:w-8 sm:h-8" />
                 <span>Suppliers</span>
+                <span className="ml-2 text-sm sm:text-base font-semibold text-slate-500 tabular-nums">
+                    ({totalApproved.toLocaleString()})
+                </span>
             </h1>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

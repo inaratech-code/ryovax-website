@@ -134,10 +134,6 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
         const c = counts;
         return base.map((item) => {
             if (!c) return item;
-            if (item.href === "/admin/buyers") return { ...item, badge: c.buyers };
-            if (item.href === "/admin/suppliers") return { ...item, badge: c.suppliers };
-            if (item.href === "/admin/rfqs") return { ...item, badge: c.requests };
-            if (item.href === "/admin/appointments") return { ...item, badge: c.appointments };
             if (item.href === "/admin/approvals") return { ...item, badge: c.pendingApprovals };
             if (item.href === "/admin/testimonials") return { ...item, badge: c.pendingTestimonials };
             return item;
