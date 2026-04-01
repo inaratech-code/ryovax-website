@@ -57,7 +57,12 @@ function docToAppointment(id: string, data: Record<string, unknown>): Appointmen
 export async function listAppointments(): Promise<AppointmentRecord[]> {
     const c = col();
     if (!c) return [];
-    const snap = await c.get();
+    let snap;
+    try {
+        snap = await c.get();
+    } catch {
+        return [];
+    }
     const out: AppointmentRecord[] = [];
     snap.forEach((doc: FirestoreQueryDoc) =>
         out.push(docToAppointment(doc.id, doc.data() as Record<string, unknown>)),
