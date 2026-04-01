@@ -44,11 +44,6 @@ export default async function AdminRfqsPage() {
                 <span>All buying requests</span>
             </h1>
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <p className="text-slate-600 text-sm">
-                        Every request stored in Firestore ({requests.length} total).
-                    </p>
-                </div>
                 <div className="overflow-x-auto">
                     {requests.length === 0 ? (
                         <p className="text-slate-500 text-sm py-12 px-6 text-center">
