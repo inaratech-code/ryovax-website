@@ -310,36 +310,62 @@ export class RestAggregateQuerySnapshot {
     }
 }
 
+type RestFieldFilter = { fieldPath: string; op: string; value: FirestoreJsonValue };
+
+function buildWhereClause(filters: RestFieldFilter[] | undefined): Record<string, unknown> | undefined {
+    if (!filters || filters.length === 0) return undefined;
+    if (filters.length === 1) {
+        const f = filters[0]!;
+        return {
+            fieldFilter: {
+                field: { fieldPath: f.fieldPath },
+                op: f.op,
+                value: f.value,
+            },
+        };
+    }
+    return {
+        compositeFilter: {
+            op: "AND",
+            filters: filters.map((f) => ({
+                fieldFilter: {
+                    field: { fieldPath: f.fieldPath },
+                    op: f.op,
+                    value: f.value,
+                },
+            })),
+        },
+    };
+}
+
 export class RestQuery {
     constructor(
         private readonly db: RestFirestore,
         private readonly collectionId: string,
-        private readonly wh?: { fieldPath: string; op: string; value: FirestoreJsonValue },
+        private readonly filters: RestFieldFilter[] = [],
         private readonly lim = 0,
     ) {}
 
     where(fieldPath: string, op: string, value: unknown): RestQuery {
-        return new RestQuery(
-            this.db,
-            this.collectionId,
+        return new RestQuery(this.db, this.collectionId, [
+            ...this.filters,
             { fieldPath, op: opToRest(op), value: encodeValue(value) },
-            this.lim,
-        );
+        ], this.lim);
     }
 
     limit(n: number): RestQuery {
-        return new RestQuery(this.db, this.collectionId, this.wh, n);
+        return new RestQuery(this.db, this.collectionId, this.filters, n);
     }
 
     count(): RestAggregateQuery {
-        return new RestAggregateQuery(this.db, this.collectionId, this.wh);
+        return new RestAggregateQuery(this.db, this.collectionId, this.filters);
     }
 
     async get(): Promise<RestQuerySnapshot> {
         const rows = await runStructuredQuery(
             this.db.projectId,
             this.collectionId,
-            this.wh,
+            this.filters,
             this.lim > 0 ? this.lim : undefined,
         );
         const docs = rows.map((row) => {
@@ -362,11 +388,11 @@ export class RestAggregateQuery {
     constructor(
         private readonly db: RestFirestore,
         private readonly collectionId: string,
-        private readonly wh?: { fieldPath: string; op: string; value: FirestoreJsonValue },
+        private readonly filters: RestFieldFilter[] = [],
     ) {}
 
     async get(): Promise<RestAggregateQuerySnapshot> {
-        const n = await runAggregationCount(this.db.projectId, this.collectionId, this.wh);
+        const n = await runAggregationCount(this.db.projectId, this.collectionId, this.filters);
         return new RestAggregateQuerySnapshot(n);
     }
 }
@@ -374,7 +400,7 @@ export class RestAggregateQuery {
 async function runStructuredQuery(
     projectId: string,
     collectionId: string,
-    wh: { fieldPath: string; op: string; value: FirestoreJsonValue } | undefined,
+    filters: RestFieldFilter[] | undefined,
     limit?: number,
 ): Promise<Array<{ document: { name: string; fields?: Record<string, FirestoreJsonValue> } }>> {
     const token = await getAccessToken();
@@ -382,14 +408,9 @@ async function runStructuredQuery(
     const structuredQuery: Record<string, unknown> = {
         from: [{ collectionId }],
     };
-    if (wh) {
-        structuredQuery.where = {
-            fieldFilter: {
-                field: { fieldPath: wh.fieldPath },
-                op: wh.op,
-                value: wh.value,
-            },
-        };
+    const where = buildWhereClause(filters);
+    if (where) {
+        structuredQuery.where = where;
     }
     if (limit != null && limit > 0) {
         structuredQuery.limit = limit;
@@ -415,21 +436,16 @@ async function runStructuredQuery(
 async function runAggregationCount(
     projectId: string,
     collectionId: string,
-    wh?: { fieldPath: string; op: string; value: FirestoreJsonValue },
+    filters?: RestFieldFilter[],
 ): Promise<number> {
     const token = await getAccessToken();
     const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runAggregationQuery`;
     const structuredQuery: Record<string, unknown> = {
         from: [{ collectionId }],
     };
-    if (wh) {
-        structuredQuery.where = {
-            fieldFilter: {
-                field: { fieldPath: wh.fieldPath },
-                op: wh.op,
-                value: wh.value,
-            },
-        };
+    const whereAgg = buildWhereClause(filters);
+    if (whereAgg) {
+        structuredQuery.where = whereAgg;
     }
     const body = {
         structuredAggregationQuery: {
@@ -446,7 +462,7 @@ async function runAggregationCount(
         body: JSON.stringify(body),
     });
     if (!res.ok) {
-        const fallback = await countViaQuery(projectId, collectionId, wh);
+        const fallback = await countViaQuery(projectId, collectionId, filters);
         return fallback;
     }
     const json = (await res.json()) as Array<{
@@ -462,9 +478,9 @@ async function runAggregationCount(
 async function countViaQuery(
     projectId: string,
     collectionId: string,
-    wh?: { fieldPath: string; op: string; value: FirestoreJsonValue },
+    filters?: RestFieldFilter[],
 ): Promise<number> {
-    const rows = await runStructuredQuery(projectId, collectionId, wh, undefined);
+    const rows = await runStructuredQuery(projectId, collectionId, filters, undefined);
     return rows.length;
 }
 
@@ -479,15 +495,13 @@ export class RestCollectionReference {
     }
 
     where(fieldPath: string, op: string, value: unknown): RestQuery {
-        return new RestQuery(this.db, this.collectionId, {
-            fieldPath,
-            op: opToRest(op),
-            value: encodeValue(value),
-        });
+        return new RestQuery(this.db, this.collectionId, [
+            { fieldPath, op: opToRest(op), value: encodeValue(value) },
+        ]);
     }
 
     count(): RestAggregateQuery {
-        return new RestAggregateQuery(this.db, this.collectionId, undefined);
+        return new RestAggregateQuery(this.db, this.collectionId, []);
     }
 
     async get(): Promise<RestQuerySnapshot> {

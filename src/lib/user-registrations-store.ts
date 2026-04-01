@@ -133,6 +133,20 @@ export async function countApprovedUserRegistrationsByRole(role: UserRegistratio
     }
 }
 
+export async function countUserRegistrationsByRoleAndStatus(
+    role: UserRegistrationRole,
+    status: UserRegistrationStatus,
+): Promise<number> {
+    const c = col();
+    if (!c) return 0;
+    try {
+        const snap = await c.where("role", "==", role).where("status", "==", status).count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
+}
+
 /** UI row for admin approval tables */
 export type UserApprovalRow = {
     id: string;
