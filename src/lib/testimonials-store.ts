@@ -200,3 +200,14 @@ export async function deletePendingById(id: string): Promise<{ ok: true } | { ok
     await ref.delete();
     return { ok: true };
 }
+
+export async function countPendingTestimonials(): Promise<number> {
+    const c = col();
+    if (!c) return 0;
+    try {
+        const snap = await c.where("status", "==", "pending").count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
+}

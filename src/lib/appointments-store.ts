@@ -66,6 +66,17 @@ export async function listAppointments(): Promise<AppointmentRecord[]> {
     return out;
 }
 
+export async function countAppointments(): Promise<number> {
+    const c = col();
+    if (!c) return 0;
+    try {
+        const snap = await c.count().get();
+        return snap.data().count;
+    } catch {
+        return 0;
+    }
+}
+
 export async function createAppointment(input: Omit<AppointmentRecord, "id" | "createdAt"> & { id: string }) {
     const c = col();
     if (!c) throw new Error("Firebase is not configured");
