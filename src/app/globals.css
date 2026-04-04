@@ -76,6 +76,7 @@ body {
 }
 
 .scroll-hint {
+  will-change: transform;
   animation: scroll-hint 2.4s ease-in-out infinite;
 }
 

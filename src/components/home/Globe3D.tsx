@@ -5,31 +5,21 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Sphere, Line, Preload, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
+/** Skip ~half the frames on the rAF loop to reduce main-thread cost (still looks smooth at 30Hz). */
+const FRAME_STRIDE = 2;
+
 function RotatingGlobe() {
     const groupRef = useRef<THREE.Group>(null);
     const { mouse } = useThree();
-
-    // Rotate slowly and add parallax
-    useFrame((state, delta) => {
-        if (!groupRef.current) return;
-
-        // Slow rotation
-        groupRef.current.rotation.y += delta * 0.1;
-        groupRef.current.rotation.x += delta * 0.05;
-
-        // Mouse parallax
-        const targetX = mouse.x * 0.5;
-        const targetY = mouse.y * 0.5;
-
-        groupRef.current.rotation.y += (targetX - groupRef.current.rotation.y) * 0.02;
-        groupRef.current.rotation.x += (targetY - groupRef.current.rotation.x) * 0.02;
-    });
+    const frameCount = useRef(0);
+    const rotY = useRef(0);
+    const rotX = useRef(0);
 
     // Generate some trade lines (curved) — deterministic so render stays pure for React rules.
     const tradeLines = useMemo(() => {
         const fract = (n: number) => n - Math.floor(n);
         const lines = [];
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 6; i++) {
             const a = fract(i * 0.618033988749895 + 0.11);
             const b = fract(i * 0.381966011250105 + 0.73);
             const phi1 = Math.acos(-1 + 2 * a);
@@ -45,15 +35,30 @@ function RotatingGlobe() {
             midPoint.normalize().multiplyScalar(2.3);
 
             const curve = new THREE.QuadraticBezierCurve3(p1, midPoint, p2);
-            lines.push(curve.getPoints(8));
+            lines.push(curve.getPoints(6));
         }
         return lines;
     }, []);
 
+    useFrame((_, delta) => {
+        frameCount.current += 1;
+        if (frameCount.current % FRAME_STRIDE !== 0) return;
+        if (!groupRef.current) return;
+
+        const d = delta * FRAME_STRIDE;
+        rotY.current += d * 0.06;
+        rotX.current += d * 0.03;
+
+        const mx = mouse.x * 0.35;
+        const my = mouse.y * 0.25;
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, rotY.current + mx, 0.04);
+        groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotX.current + my, 0.04);
+    });
+
     return (
         <group ref={groupRef}>
             {/* The main earth sphere */}
-            <Sphere args={[2, 32, 32]}>
+            <Sphere args={[2, 24, 24]}>
                 <meshStandardMaterial
                     color="#1e3a8a"
                     transparent
@@ -65,7 +70,7 @@ function RotatingGlobe() {
             </Sphere>
 
             {/* Slightly larger sphere for glow / atmosphere */}
-            <Sphere args={[2.05, 20, 20]}>
+            <Sphere args={[2.05, 16, 16]}>
                 <meshBasicMaterial color="#3b82f6" transparent opacity={0.1} />
             </Sphere>
 
@@ -75,7 +80,7 @@ function RotatingGlobe() {
                     key={index}
                     points={points}
                     color={index % 3 === 0 ? "#f97316" : "#60a5fa"}
-                    lineWidth={1.5}
+                    lineWidth={1.25}
                     transparent
                     opacity={0.6}
                 />
@@ -84,7 +89,7 @@ function RotatingGlobe() {
             {/* Subtle nodes representing cities/hubs */}
             {tradeLines.map((points, index) => (
                 <mesh key={`node-${index}`} position={points[0]}>
-                    <sphereGeometry args={[0.04, 8, 8]} />
+                    <sphereGeometry args={[0.04, 6, 6]} />
                     <meshBasicMaterial color="#f97316" />
                 </mesh>
             ))}
@@ -102,8 +107,9 @@ export default function Globe3D() {
         <div className="w-full h-full cursor-grab active:cursor-grabbing">
             <Canvas
                 camera={{ position: [0, 0, 5.5], fov: 45 }}
-                dpr={[1, 1.25]}
+                dpr={[1, 1.5]}
                 gl={{ powerPreference: "low-power", antialias: false, stencil: false, depth: true }}
+                shadows={false}
             >
                 <RotatingGlobe />
                 <OrbitControls

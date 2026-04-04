@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CalendarClock, Menu, X } from "lucide-react";
 import Link from "next/link";
 import RyovaxLogo from "@/components/brand/RyovaxLogo";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 
 function useBodyScrollLock(locked: boolean) {
     useEffect(() => {
@@ -26,13 +26,19 @@ const navLinks = [
     { name: "Contact", href: "/contact" },
 ];
 
-export default function Navbar() {
+function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [headerHidden, setHeaderHidden] = useState(false);
     const lastScrollY = useRef(0);
     const rafId = useRef<number | null>(null);
     const pendingScrollY = useRef<number>(0);
+
+    const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
+    const openMobileMenu = useCallback(() => {
+        setHeaderHidden(false);
+        setMobileMenuOpen(true);
+    }, []);
 
     useBodyScrollLock(mobileMenuOpen);
 
@@ -141,10 +147,7 @@ export default function Navbar() {
                 <button
                     type="button"
                     className="lg:hidden shrink-0 text-slate-900 p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                    onClick={() => {
-                        setHeaderHidden(false);
-                        setMobileMenuOpen(true);
-                    }}
+                    onClick={openMobileMenu}
                     aria-label="Open menu"
                     aria-expanded={mobileMenuOpen}
                 >
@@ -159,7 +162,7 @@ export default function Navbar() {
                     <button
                         type="button"
                         className="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-900 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
+                        onClick={closeMobileMenu}
                         aria-label="Close menu"
                     >
                         <X size={24} />
@@ -171,7 +174,7 @@ export default function Navbar() {
                                 key={link.name}
                                 href={link.href}
                                 className="text-slate-800 hover:text-blue-700 py-1"
-                                onClick={() => setMobileMenuOpen(false)}
+                                onClick={closeMobileMenu}
                             >
                                 {link.name}
                             </Link>
@@ -182,7 +185,7 @@ export default function Navbar() {
                         <Link
                             href="/book-appointment"
                             className="w-full inline-flex items-center justify-center gap-2 text-center py-4 border-2 border-saffron-500 bg-saffron-50 rounded-xl font-semibold text-saffron-900"
-                            onClick={() => setMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                         >
                             <CalendarClock size={20} aria-hidden />
                             Schedule a call
@@ -190,14 +193,14 @@ export default function Navbar() {
                         <Link
                             href="/auth/login"
                             className="w-full text-center py-4 border-2 border-slate-200 rounded-xl font-semibold text-slate-800"
-                            onClick={() => setMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                         >
                             Sign In
                         </Link>
                         <Link
                             href="/auth/register"
                             className="w-full text-center py-4 bg-blue-700 rounded-xl font-semibold text-white shadow-lg"
-                            onClick={() => setMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                         >
                             Request quotes
                         </Link>
@@ -207,3 +210,5 @@ export default function Navbar() {
         </motion.header>
     );
 }
+
+export default memo(Navbar);

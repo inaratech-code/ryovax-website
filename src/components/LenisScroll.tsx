@@ -22,9 +22,9 @@ export default function LenisScroll({ children }: { children: React.ReactNode })
     }
 
     const lenis = new Lenis({
-      // Higher lerp = scroll catches up faster (less “lag” behind the wheel).
-      lerp: 0.26,
-      wheelMultiplier: 1.05,
+      // Balanced smooth scroll: ~0.08–0.12 feels fluid without excessive float.
+      lerp: 0.1,
+      wheelMultiplier: 1,
       smoothWheel: true,
       touchMultiplier: 1,
       syncTouch: false,

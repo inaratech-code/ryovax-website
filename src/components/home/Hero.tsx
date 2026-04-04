@@ -4,12 +4,9 @@ import { motion } from "framer-motion";
 import { ArrowRight, CalendarClock, Globe2 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, memo, useEffect, useState } from "react";
 
-// Use dynamic import for Three.js components to avoid SSR issues
-const Globe3D = dynamic(() => import("./Globe3D"), { ssr: false });
-
-function GlobePlaceholder() {
+const GlobePlaceholder = memo(function GlobePlaceholder() {
     return (
         <div
             className="absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100/90 via-blue-50/40 to-slate-100/80 border border-slate-200/40"
@@ -18,29 +15,67 @@ function GlobePlaceholder() {
             <div className="h-20 w-20 sm:h-28 sm:w-28 rounded-full border-2 border-dashed border-slate-300/70 opacity-50" />
         </div>
     );
-}
+});
+
+const Globe3D = dynamic(() => import("./Globe3D"), { ssr: false, loading: () => <GlobePlaceholder /> });
 
 export default function Hero() {
     const [mountGlobe, setMountGlobe] = useState(false);
 
     useEffect(() => {
+        let idleId: number | undefined;
+        /** DOM timers use numeric IDs in the browser (Node typings can widen to `Timeout`). */
+        let timeoutId: number | undefined;
+
         const w = window as Window & {
             requestIdleCallback?: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => number;
             cancelIdleCallback?: (id: number) => void;
         };
-        if (typeof w.requestIdleCallback === "function") {
-            const id = w.requestIdleCallback(() => setMountGlobe(true), { timeout: 2000 });
-            return () => w.cancelIdleCallback?.(id);
-        }
-        const t = window.setTimeout(() => setMountGlobe(true), 400);
-        return () => clearTimeout(t);
+
+        const clearScheduled = () => {
+            if (idleId != null) w.cancelIdleCallback?.(idleId);
+            if (timeoutId != null) clearTimeout(timeoutId);
+            idleId = undefined;
+            timeoutId = undefined;
+        };
+
+        const tryMountGlobe = () => {
+            clearScheduled();
+            const narrow = window.matchMedia("(max-width: 768px)").matches;
+            const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (narrow || reduced) {
+                setMountGlobe(false);
+                return;
+            }
+            if (typeof w.requestIdleCallback === "function") {
+                idleId = w.requestIdleCallback(() => setMountGlobe(true), { timeout: 2000 });
+            } else {
+                timeoutId = window.setTimeout(() => setMountGlobe(true), 400) as number;
+            }
+        };
+
+        tryMountGlobe();
+
+        const mqNarrow = window.matchMedia("(max-width: 768px)");
+        const mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const onChange = () => tryMountGlobe();
+        mqNarrow.addEventListener("change", onChange);
+        mqReduce.addEventListener("change", onChange);
+        return () => {
+            mqNarrow.removeEventListener("change", onChange);
+            mqReduce.removeEventListener("change", onChange);
+            clearScheduled();
+        };
     }, []);
 
     return (
         <section className="relative min-h-screen pt-28 sm:pt-32 md:pt-40 lg:pt-44 pb-10 sm:pb-12 overflow-hidden flex items-center bg-slate-50">
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 hidden md:block">
                 <div className="absolute top-1/4 -right-1/4 w-[800px] h-[800px] bg-blue-100 rounded-full blur-[120px] opacity-60 mix-blend-multiply" />
                 <div className="absolute bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-saffron-100 rounded-full blur-[100px] opacity-40 mix-blend-multiply" />
+            </div>
+            <div className="absolute inset-0 z-0 md:hidden pointer-events-none">
+                <div className="absolute top-1/3 right-0 w-[min(100vw,420px)] h-[min(100vw,420px)] bg-blue-100/80 rounded-full blur-[72px] opacity-50" />
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 relative z-10 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -116,14 +151,14 @@ export default function Hero() {
                 </div>
 
                 <motion.div
-                    className="relative h-[220px] sm:h-[320px] md:h-[440px] lg:h-[600px] w-full min-h-0"
+                    className="relative h-[220px] sm:h-[320px] md:h-[440px] lg:h-[600px] w-full min-h-0 [contain:layout]"
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
                 >
                     <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-slate-50 via-transparent to-transparent z-10" />
                     {mountGlobe ? (
-                        <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">Loading…</div>}>
+                        <Suspense fallback={<GlobePlaceholder />}>
                             <Globe3D />
                         </Suspense>
                     ) : (
